@@ -4,8 +4,8 @@ Static redesign concepts for [mojprozor.rs](https://mojprozor.rs/).
 
 | Page | File | Direction |
 | --- | --- | --- |
-| V1 | `index.html` (`/`) | Elegant + SaaS: 3D opening-sash hero, live window configurator, savings calculator, profile anatomy |
-| V2 | `v2.html` (`/v2`) | Lighter, Apple-style product page with the same configurator and calculator |
+| V2 (main) | `index.html` (`/`) | Lighter, Apple-style product page with the window configurator and savings calculator |
+| V1 | `v1.html` (`/v1`) | Elegant + SaaS: 3D opening-sash hero, live window configurator, savings calculator, profile anatomy |
 
 No build step: open `index.html` in a browser, or import the repo into Vercel (`vercel.json` enables clean URLs).
 

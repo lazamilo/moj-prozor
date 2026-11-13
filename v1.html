@@ -1,0 +1,1379 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Moj Prozor</title>
+<meta name="description" content="Moj Prozor — nenadmašan izbor prozora i vrata. Konfigurišite prozor po meri, izračunajte uštedu i zakažite besplatno merenje.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&display=swap">
+<style>
+body{margin:0}
+/* Layout concept: the window as a frame. Airy neutral page, graphite type, brand yellow used only for action;
+   every section is "looked at through" a frame — hero sash, configurator canvas, profile cross-section. */
+:root{
+  --bg:#F5F5F2;          /* daylight neutral, faint warm bias */
+  --surface:#FFFFFF;
+  --sunk:#ECECE7;
+  --ink:#232221;         /* logo graphite */
+  --muted:#6A6863;
+  --line:#E0DED8;
+  --accent:#F1B51C;      /* logo yellow */
+  --accent-ink:#232221;
+  --accent-soft:#FBEBC2;
+  --glass:#DCE6EB;
+  --frame:#3A4045;       /* RAL 7016 antracit */
+  --ok:#2F8F5B;
+
+  --f-display:"Newsreader", "Iowan Old Style", Georgia, serif;
+  --f-ui:"Geist", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --f-mono:"Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --r-lg:28px; --r-md:18px; --r-sm:12px;
+  --shadow:0 1px 0 rgba(35,34,33,.04), 0 18px 50px -24px rgba(35,34,33,.22);
+  --maxw:1240px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121211; --surface:#1A1A19; --sunk:#222220; --ink:#F1F0EC; --muted:#A4A29C; --line:#2E2D2A;
+    --accent:#F1B51C; --accent-ink:#1A1A19; --accent-soft:#3A3118; --glass:#2A3439; --frame:#3A4045; --ok:#5CC48A;
+    --shadow:0 1px 0 rgba(0,0,0,.3), 0 18px 50px -24px rgba(0,0,0,.7);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121211; --surface:#1A1A19; --sunk:#222220; --ink:#F1F0EC; --muted:#A4A29C; --line:#2E2D2A;
+  --accent:#F1B51C; --accent-ink:#1A1A19; --accent-soft:#3A3118; --glass:#2A3439; --frame:#3A4045; --ok:#5CC48A;
+  --shadow:0 1px 0 rgba(0,0,0,.3), 0 18px 50px -24px rgba(0,0,0,.7);
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:var(--f-ui); font-size:16px; line-height:1.55;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--bg)}
+img{max-width:100%;display:block}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+.wrap{max-width:var(--maxw);margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media (min-width:700px){.wrap{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}}
+
+/* type scale */
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:8px;height:8px;background:var(--accent);border-radius:2px;flex:none}
+h1,h2,h3{margin:0;text-wrap:balance;font-weight:400}
+.display{font-family:var(--f-display);font-weight:350;letter-spacing:-.02em;line-height:1.0;font-size:clamp(44px,7.4vw,104px);font-optical-sizing:auto}
+.display em,.h2 em{font-style:italic;font-weight:300}
+.h2{font-family:var(--f-display);font-weight:350;letter-spacing:-.015em;line-height:1.05;font-size:clamp(34px,4.6vw,60px)}
+.h3{font-family:var(--f-ui);font-weight:550;letter-spacing:-.01em;font-size:20px;line-height:1.25}
+.lede{font-size:clamp(17px,1.5vw,19px);color:var(--muted);max-width:56ch;margin:0}
+p{margin:0}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 22px;border-radius:999px;border:1px solid transparent;
+  font-weight:550;font-size:15px;text-decoration:none;cursor:pointer;transition:transform .25s cubic-bezier(.2,.8,.2,1),background .2s,border-color .2s;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-primary:hover{background:#F5C23F}
+.btn-ghost{background:transparent;border-color:var(--line);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--ink)}
+.btn-dark{background:var(--ink);color:var(--bg)}
+.btn .arr{transition:transform .25s}
+.btn:hover .arr{transform:translateX(3px)}
+.btn-sm{height:38px;padding:0 16px;font-size:14px}
+
+section{position:relative}
+.section{padding-block:clamp(72px,10vw,140px)}
+.sec-head{display:grid;gap:18px;margin-bottom:clamp(36px,5vw,64px)}
+@media (min-width:900px){.sec-head.split{grid-template-columns:1.1fr .9fr;align-items:end;gap:48px}}
+
+/* ───────── NAV ───────── */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;padding-block:14px}
+.nav-inner{display:flex;align-items:center;gap:16px;height:60px;padding:0 10px 0 18px;border-radius:999px;
+  background:color-mix(in srgb,var(--surface) 78%,transparent);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);
+  border:1px solid color-mix(in srgb,var(--line) 70%,transparent);box-shadow:0 10px 30px -18px rgba(0,0,0,.25)}
+.logo{display:block;width:118px;color:var(--ink);flex:none}
+.logo svg{width:100%;height:auto;display:block}
+.nav-links{display:none;gap:4px;margin-left:12px}
+.nav-links a{text-decoration:none;font-size:14.5px;padding:8px 14px;border-radius:999px;color:var(--muted);transition:color .2s,background .2s}
+.nav-links a:hover{color:var(--ink);background:var(--sunk)}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.saved-chip{display:none;align-items:center;gap:8px;font-size:13.5px;padding:8px 12px;border-radius:999px;color:var(--muted);text-decoration:none}
+.saved-chip b{font-family:var(--f-mono);font-weight:500;min-width:22px;height:22px;display:grid;place-items:center;border-radius:99px;background:var(--sunk);color:var(--ink);font-size:12px;transition:background .3s}
+.saved-chip.bump b{background:var(--accent);color:var(--accent-ink)}
+.menu-btn{width:44px;height:44px;border-radius:99px;border:1px solid var(--line);background:transparent;display:grid;place-items:center;cursor:pointer}
+.menu-btn span{display:block;width:16px;height:1.5px;background:var(--ink);box-shadow:0 5px 0 var(--ink),0 -5px 0 var(--ink)}
+.mobile-menu{margin-top:8px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line);padding:10px;display:grid;box-shadow:var(--shadow)}
+.mobile-menu a{padding:14px 12px;text-decoration:none;border-radius:10px;font-size:17px}
+.mobile-menu a:hover{background:var(--sunk)}
+@media (min-width:980px){.nav-links{display:flex}.saved-chip{display:inline-flex}.menu-btn{display:none}.mobile-menu{display:none!important}}
+@media (max-width:520px){.nav .btn-primary{display:none}}
+
+/* ───────── HERO ───────── */
+.hero{padding-top:clamp(28px,5vw,64px)}
+.hero-top{display:grid;gap:28px;align-items:end}
+@media (min-width:980px){.hero-top{grid-template-columns:1.35fr .65fr;gap:56px}}
+.hero-top .display{margin-top:18px}
+.hero-aside{display:grid;gap:22px;padding-bottom:10px}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:10px}
+.spec-row{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:2px}
+.spec-row span{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);display:inline-flex;gap:8px;align-items:center}
+.spec-row span::before{content:"";width:5px;height:5px;border-radius:9px;background:var(--ink);opacity:.5}
+
+.hero-stage{margin-top:clamp(36px,5vw,56px);padding-inline:max(16px,env(safe-area-inset-left,0px))}
+.hero-window{position:relative;max-width:1480px;margin-inline:auto;aspect-ratio:16/8.4;overflow:hidden;background:#cfd8dc;
+  --clip:0;--rad:28px;clip-path:inset(0 calc(var(--clip) * 1%) 0 calc(var(--clip) * 1%) round var(--rad));--open:0deg;--frame-w:clamp(9px,1.25vw,18px);--sash-w:clamp(7px,.95vw,14px)}
+@media (max-width:700px){.hero-window{aspect-ratio:4/5}}
+.hero-window .scene{position:absolute;inset:-4%;width:108%;height:108%;object-fit:cover;object-position:50% 55%;will-change:transform}
+.hw-frame{position:absolute;inset:0 calc(var(--clip) * 1%);border-radius:var(--rad);border:var(--frame-w) solid var(--frame);pointer-events:none;z-index:4;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08), inset 0 18px 30px -20px rgba(0,0,0,.45)}
+.hw-sashes{position:absolute;inset:var(--frame-w) calc(var(--clip) * 1% + var(--frame-w));display:grid;grid-template-columns:1fr 1fr;perspective:1800px;z-index:3}
+.sash{position:relative;border:var(--sash-w) solid var(--frame);
+  background:
+    linear-gradient(118deg, rgba(255,255,255,.20) 0 14%, rgba(255,255,255,.03) 14% 30%, rgba(255,255,255,.14) 30% 33%, rgba(255,255,255,0) 33% 100%),
+    linear-gradient(180deg, rgba(210,226,234,.10), rgba(210,226,234,.04));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12), inset 0 0 40px rgba(255,255,255,.05)}
+.sash.r{transform-origin:100% 50%;transform:rotateY(var(--open));transition:box-shadow .3s;will-change:transform}
+.sash.r::after{content:"";position:absolute;left:calc(var(--sash-w) * -1 + 2px);top:50%;width:calc(var(--sash-w) * .7);height:clamp(36px,5vw,64px);
+  transform:translate(-50%,-50%);border-radius:6px;background:#E9E9E4;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.hw-chip{position:absolute;z-index:6;display:flex;gap:12px;align-items:center;padding:12px 16px 12px 12px;border-radius:16px;
+  background:color-mix(in srgb,var(--surface) 82%,transparent);backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);
+  border:1px solid color-mix(in srgb,var(--surface) 60%,transparent);box-shadow:0 20px 40px -20px rgba(0,0,0,.45);font-size:13.5px;line-height:1.3}
+.hw-chip .ic{width:38px;height:38px;border-radius:11px;background:var(--accent-soft);display:grid;place-items:center;flex:none}
+.hw-chip b{display:block;font-family:var(--f-mono);font-weight:500;font-size:15px}
+.hw-chip small{color:var(--muted)}
+.chip-a{left:calc(var(--clip) * 1% + var(--frame-w) + 18px);bottom:calc(var(--frame-w) + 18px)}
+.chip-b{right:calc(var(--clip) * 1% + var(--frame-w) + 18px);top:calc(var(--frame-w) + 18px)}
+.chip-c{right:calc(var(--clip) * 1% + var(--frame-w) + 18px);bottom:calc(var(--frame-w) + 18px)}
+@media (max-width:700px){.chip-b,.chip-c{display:none}}
+.hw-hint{position:absolute;z-index:6;left:50%;top:calc(var(--frame-w) + 16px);transform:translateX(-50%);font-family:var(--f-mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:#fff;background:rgba(20,20,20,.35);padding:7px 12px;border-radius:99px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);white-space:nowrap}
+
+/* marquee */
+.marquee{border-block:1px solid var(--line);margin-top:clamp(48px,6vw,80px);overflow:hidden;padding-block:22px;mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent)}
+.marquee-track{display:flex;gap:56px;width:max-content;animation:mq 38s linear infinite}
+.marquee span{font-family:var(--f-mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:inline-flex;align-items:center;gap:56px;white-space:nowrap}
+.marquee span::after{content:"";width:6px;height:6px;border-radius:2px;background:var(--accent)}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+/* ───────── PRODUCTS ───────── */
+.prod-row{display:flex;gap:12px;height:clamp(460px,58vw,620px)}
+.prod{position:relative;flex:1 1 0;min-width:0;border-radius:var(--r-md);overflow:hidden;cursor:pointer;color:#fff;text-decoration:none;
+  transition:flex-grow .8s cubic-bezier(.2,.8,.2,1);isolation:isolate;outline-offset:4px}
+.prod.is-open{flex-grow:3.4}
+.prod img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;transition:transform 1.2s cubic-bezier(.2,.8,.2,1)}
+.prod:hover img{transform:scale(1.04)}
+.prod::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(15,15,15,.05) 30%,rgba(15,15,15,.72))}
+.prod-body{position:absolute;left:0;right:0;bottom:0;padding:24px;display:grid;gap:10px}
+.prod-tag{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+.prod h3{font-family:var(--f-display);font-size:clamp(28px,2.6vw,40px);font-weight:350;letter-spacing:-.01em;line-height:1}
+.prod-more{display:grid;grid-template-rows:0fr;transition:grid-template-rows .6s cubic-bezier(.2,.8,.2,1),opacity .4s;opacity:0}
+.prod.is-open .prod-more{grid-template-rows:1fr;opacity:1}
+.prod-more>div{overflow:hidden;display:grid;gap:14px;max-width:46ch}
+.prod-more p{color:rgba(255,255,255,.86);font-size:15px}
+.prod-link{display:inline-flex;gap:8px;align-items:center;font-weight:550;font-size:14px;background:rgba(255,255,255,.16);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.25);width:max-content;padding:9px 14px;border-radius:99px}
+.prod-plus{position:absolute;top:18px;right:18px;width:36px;height:36px;border-radius:99px;border:1px solid rgba(255,255,255,.4);display:grid;place-items:center;transition:transform .5s;font-size:20px;line-height:1}
+.prod.is-open .prod-plus{transform:rotate(45deg)}
+@media (max-width:820px){
+  .prod-row{flex-direction:column;height:auto}
+  .prod{flex:none;height:120px;transition:height .7s cubic-bezier(.2,.8,.2,1)}
+  .prod.is-open{height:440px}
+}
+
+/* ───────── CONFIGURATOR ───────── */
+.cfg-band{background:var(--surface);border-block:1px solid var(--line)}
+.cfg{display:grid;gap:20px}
+@media (min-width:1020px){.cfg{grid-template-columns:minmax(0,1.25fr) minmax(0,.95fr);gap:28px;align-items:start}}
+.cfg-stage{position:relative;border-radius:var(--r-lg);background:var(--bg);border:1px solid var(--line);overflow:hidden;min-width:0}
+@media (min-width:1020px){.cfg-stage{position:sticky;top:96px}}
+.cfg-stage::before{content:"";position:absolute;inset:0;background-image:radial-gradient(color-mix(in srgb,var(--ink) 16%,transparent) 1px,transparent 1.2px);background-size:22px 22px;opacity:.55;pointer-events:none}
+.cfg-toolbar{position:relative;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent)}
+.cfg-code{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.view-toggle{display:flex;background:var(--sunk);border-radius:99px;padding:3px;flex:none}
+.view-toggle button{border:0;background:transparent;font-size:12.5px;padding:6px 12px;border-radius:99px;cursor:pointer;color:var(--muted)}
+.view-toggle button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.cfg-canvas{position:relative;display:grid;place-items:center;padding:18px;min-height:420px}
+.cfg-canvas svg{width:100%;height:auto;max-height:560px;overflow:visible}
+.cfg-canvas .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cfg-xsec{position:absolute;left:18px;bottom:18px;display:flex;gap:12px;align-items:center;padding:10px 14px;border-radius:14px;background:var(--surface);border:1px solid var(--line);font-size:12.5px}
+.cfg-xsec svg{width:46px;height:40px}
+.cfg-xsec b{display:block;font-family:var(--f-mono);font-weight:500;font-size:13px}
+.cfg-xsec small{color:var(--muted)}
+
+.cfg-panel{display:grid;gap:10px;min-width:0}
+.fieldset{border:1px solid var(--line);border-radius:var(--r-md);padding:18px;margin:0;display:grid;gap:14px;background:var(--bg)}
+.fieldset legend{float:left;width:100%;padding:0;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.fieldset legend span{font-weight:550;font-size:15px}
+.fieldset legend small{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.fieldset legend + *{clear:both}
+.types{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media (max-width:520px){.types{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.type-opt{position:relative}
+.type-opt input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.type-opt label{display:grid;justify-items:center;gap:8px;padding:12px 6px 10px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-size:12.5px;text-align:center;cursor:pointer;transition:border-color .2s,box-shadow .2s;line-height:1.2}
+.type-opt svg{width:34px;height:40px;color:var(--ink)}
+.type-opt input:checked + label{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.type-opt input:focus-visible + label{outline:2px solid var(--accent);outline-offset:2px}
+
+.range{display:grid;gap:8px}
+.range-top{display:flex;justify-content:space-between;align-items:baseline;font-size:14px}
+.range-top output{font-family:var(--f-mono);font-size:14px;font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;cursor:pointer;--p:50%}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:9px;background:linear-gradient(90deg,var(--ink) var(--p),var(--line) var(--p))}
+input[type=range]::-moz-range-track{height:4px;border-radius:9px;background:linear-gradient(90deg,var(--ink) var(--p),var(--line) var(--p))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--surface);border:2px solid var(--ink);margin-top:-9px;box-shadow:0 2px 8px rgba(0,0,0,.2);transition:transform .15s}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--surface);border:2px solid var(--ink)}
+input[type=range]:active::-webkit-slider-thumb{transform:scale(1.15)}
+
+.swatches{display:flex;flex-wrap:wrap;gap:10px}
+.sw{position:relative}
+.sw input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.sw label{display:flex;align-items:center;gap:10px;padding:6px 12px 6px 6px;border-radius:99px;border:1px solid var(--line);background:var(--surface);font-size:13px;cursor:pointer;transition:border-color .2s}
+.sw i{width:26px;height:26px;border-radius:99px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+.sw input:checked + label{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.sw input:focus-visible + label{outline:2px solid var(--accent);outline-offset:2px}
+.seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.seg .sw label{border-radius:12px;padding:10px 12px;display:grid;gap:2px}
+.seg .sw label b{font-weight:550;font-size:13.5px}
+.seg .sw label small{font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
+.toggles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tg{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-size:13.5px;cursor:pointer}
+.tg input{appearance:none;-webkit-appearance:none;width:38px;height:22px;border-radius:99px;background:var(--line);position:relative;cursor:pointer;transition:background .25s;flex:none;margin:0}
+.tg input::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:99px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.tg input:checked{background:var(--ink)}
+.tg input:checked::after{transform:translateX(16px)}
+
+.summary{border-radius:var(--r-md);background:var(--ink);color:var(--bg);padding:20px;display:grid;gap:16px}
+.sum-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.sum-grid div{display:grid;gap:2px}
+.sum-grid small{font-size:12px;opacity:.65}
+.sum-grid b{font-family:var(--f-mono);font-weight:500;font-size:16px;font-variant-numeric:tabular-nums}
+.price{display:flex;justify-content:space-between;align-items:end;gap:12px;padding-top:14px;border-top:1px solid color-mix(in srgb,var(--bg) 18%,transparent);flex-wrap:wrap}
+.price small{display:block;font-size:12px;opacity:.65}
+.price strong{font-family:var(--f-display);font-weight:350;font-size:clamp(30px,3vw,38px);letter-spacing:-.01em;font-variant-numeric:tabular-nums;line-height:1.1}
+.sum-actions{display:flex;gap:8px;flex-wrap:wrap}
+.summary .btn-ghost{border-color:color-mix(in srgb,var(--bg) 30%,transparent);color:var(--bg)}
+.summary .btn-ghost:hover{border-color:var(--bg)}
+.lead{display:grid;gap:10px}
+.lead-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:520px){.lead-grid{grid-template-columns:1fr}}
+.inp{width:100%;height:46px;border-radius:12px;border:1px solid color-mix(in srgb,var(--bg) 22%,transparent);background:color-mix(in srgb,var(--bg) 6%,transparent);padding:0 14px;color:var(--bg)}
+.inp::placeholder{color:color-mix(in srgb,var(--bg) 50%,transparent)}
+.inp:focus{outline:none;border-color:var(--accent)}
+.note{font-size:12px;opacity:.6}
+.lead-done{display:grid;gap:8px;padding:14px;border-radius:12px;background:color-mix(in srgb,var(--accent) 16%,transparent);border:1px solid color-mix(in srgb,var(--accent) 45%,transparent)}
+
+/* ───────── SAVINGS ───────── */
+.sav{display:grid;gap:20px}
+@media (min-width:1020px){.sav{grid-template-columns:.9fr 1.1fr;gap:28px}}
+.sav-card{border-radius:var(--r-lg);border:1px solid var(--line);background:var(--surface);padding:clamp(20px,3vw,32px);display:grid;gap:22px;min-width:0}
+.sav-out{border-radius:var(--r-lg);overflow:hidden;position:relative;min-height:440px;color:#fff;display:grid;align-content:end;isolation:isolate;min-width:0}
+.sav-out img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.sav-out::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(18,18,18,.0),rgba(18,18,18,.78) 62%)}
+.sav-res{padding:clamp(20px,3vw,32px);display:grid;gap:22px}
+.big-num{font-family:var(--f-display);font-weight:330;font-size:clamp(56px,8vw,104px);letter-spacing:-.03em;line-height:.9;font-variant-numeric:tabular-nums}
+.big-num small{font-family:var(--f-ui);font-size:18px;letter-spacing:0;font-weight:450;margin-left:6px;opacity:.8}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.kpi{padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.12);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.18)}
+.kpi small{display:block;font-size:12px;opacity:.75}
+.kpi b{font-family:var(--f-mono);font-weight:500;font-size:16px}
+.bars{display:grid;gap:10px}
+.bar{display:grid;grid-template-columns:110px 1fr 90px;gap:12px;align-items:center;font-size:13px}
+.bar .track{height:10px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden}
+.bar .fill{height:100%;border-radius:99px;background:rgba(255,255,255,.85);transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.bar.new .fill{background:var(--accent)}
+.bar b{font-family:var(--f-mono);font-weight:500;text-align:right;font-size:12.5px}
+.foot-note{font-size:12.5px;color:var(--muted)}
+
+/* ───────── PROFILE ANATOMY ───────── */
+.anat{display:grid;gap:24px;align-items:center}
+@media (min-width:980px){.anat{grid-template-columns:1fr 1fr;gap:56px}}
+.anat-fig{position:relative;border-radius:var(--r-lg);overflow:hidden;background:#F2EFE9;max-width:560px;width:100%;justify-self:center}
+.anat-fig img{width:100%;height:auto}
+.hot{position:absolute;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:99px;border:0;background:var(--surface);color:var(--ink);cursor:pointer;display:grid;place-items:center;
+  box-shadow:0 6px 18px rgba(0,0,0,.25);font-family:var(--f-mono);font-size:13px;transition:transform .25s,background .25s}
+.hot::before{content:"";position:absolute;inset:-6px;border-radius:99px;border:1.5px solid var(--surface);opacity:.7;animation:ping 2.4s cubic-bezier(.2,.8,.2,1) infinite}
+.hot[aria-pressed="true"]{background:var(--accent);color:#232221;transform:scale(1.1)}
+@keyframes ping{0%{transform:scale(.8);opacity:.8}100%{transform:scale(1.7);opacity:0}}
+.anat-list{display:grid;gap:0;border-top:1px solid var(--line)}
+.anat-item{display:grid;grid-template-columns:34px 1fr auto;gap:14px;align-items:start;padding:18px 0;border-bottom:1px solid var(--line);cursor:pointer;background:none;border-left:0;border-right:0;border-top:0;text-align:left;width:100%}
+.anat-item .n{font-family:var(--f-mono);font-size:12px;width:26px;height:26px;border-radius:99px;display:grid;place-items:center;border:1px solid var(--line);transition:background .25s,border-color .25s}
+.anat-item h3{font-size:17px;font-weight:550;font-family:var(--f-ui)}
+.anat-item p{color:var(--muted);font-size:14.5px;max-width:52ch;display:grid;grid-template-rows:0fr;transition:grid-template-rows .45s cubic-bezier(.2,.8,.2,1)}
+.anat-item p span{overflow:hidden}
+.anat-item .val{font-family:var(--f-mono);font-size:13px;color:var(--muted);white-space:nowrap}
+.anat-item[aria-expanded="true"] .n{background:var(--accent);border-color:var(--accent);color:#232221}
+.anat-item[aria-expanded="true"] p{grid-template-rows:1fr;margin-top:6px}
+
+/* ───────── BENTO ───────── */
+.bento{display:grid;gap:12px;grid-template-columns:repeat(6,minmax(0,1fr))}
+.tile{border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line);padding:22px;display:grid;gap:14px;align-content:start;position:relative;overflow:hidden;min-width:0;grid-column:span 6}
+.tile p{color:var(--muted);font-size:14.5px}
+@media (min-width:760px){.t-a{grid-column:span 3}.t-b{grid-column:span 3}.t-c{grid-column:span 2}.t-d{grid-column:span 2}.t-e{grid-column:span 2}.t-f{grid-column:span 6}}
+@media (min-width:1100px){.t-a{grid-column:span 4}.t-b{grid-column:span 2}.t-c{grid-column:span 2}.t-d{grid-column:span 2}.t-e{grid-column:span 2}.t-f{grid-column:span 6}}
+.tile-media{border-radius:12px;overflow:hidden;position:relative}
+.t-a{grid-template-columns:1fr;}
+.t-a .noise{display:grid;gap:16px}
+.wave{display:flex;align-items:center;gap:3px;height:84px}
+.wave i{flex:1;border-radius:3px;background:var(--ink);height:calc(var(--h) * var(--amp,1));transition:height .6s cubic-bezier(.2,.8,.2,1);animation:wv 1.4s ease-in-out infinite alternate;animation-delay:var(--d)}
+@keyframes wv{from{transform:scaleY(.55)}to{transform:scaleY(1)}}
+.db-row{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap}
+.db{font-family:var(--f-display);font-size:64px;line-height:.9;font-weight:330;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.db small{font-family:var(--f-mono);font-size:14px;margin-left:4px;color:var(--muted);letter-spacing:0}
+.pill-toggle{display:inline-flex;background:var(--sunk);border-radius:99px;padding:3px}
+.pill-toggle button{border:0;background:transparent;padding:8px 14px;border-radius:99px;font-size:13px;cursor:pointer;color:var(--muted)}
+.pill-toggle button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.mini-win{width:100%;height:150px;display:grid;place-items:center;background:var(--bg);border-radius:12px}
+.mini-win svg{height:120px}
+.dots{display:flex;gap:8px}
+.dots button{width:26px;height:26px;border-radius:99px;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line);cursor:pointer}
+.dots button[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
+.weather{display:flex;flex-wrap:wrap;gap:6px}
+.weather span{font-size:12.5px;padding:6px 10px;border-radius:99px;background:var(--sunk)}
+.rc{font-family:var(--f-display);font-size:72px;line-height:.9;font-weight:330;letter-spacing:-.03em}
+.checks{display:grid;gap:8px;padding:0;margin:0;list-style:none;font-size:14px}
+.checks li{display:flex;gap:10px;align-items:start}
+.checks li::before{content:"";width:16px;height:16px;flex:none;margin-top:3px;border-radius:5px;background:var(--accent-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5.5' fill='none' stroke='%23232221' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/14px no-repeat}
+.smart{display:grid;gap:8px}
+.smart-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:var(--bg);border:1px solid var(--line);font-size:13.5px}
+.status{font-family:var(--f-mono);font-size:11.5px;padding:4px 8px;border-radius:99px;background:var(--sunk);color:var(--muted);transition:background .3s,color .3s}
+.status.on{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}
+.t-f{grid-template-columns:1fr;padding:0}
+@media (min-width:760px){.t-f{grid-template-columns:1.1fr 1fr}}
+.t-f .tf-body{padding:clamp(22px,3vw,36px);display:grid;gap:16px;align-content:center}
+.t-f img{width:100%;height:100%;object-fit:cover;min-height:260px}
+
+/* ───────── AR ───────── */
+.ar{display:grid;gap:24px;align-items:center}
+@media (min-width:980px){.ar{grid-template-columns:1.2fr .8fr;gap:56px}}
+.ar-media{border-radius:var(--r-lg);overflow:hidden;position:relative}
+.ar-media img{width:100%;height:100%;object-fit:cover;aspect-ratio:16/10}
+.ar-pins{position:absolute;inset:0;pointer-events:none}
+.ar-pin{position:absolute;font-family:var(--f-mono);font-size:11.5px;background:var(--surface);color:var(--ink);padding:6px 10px;border-radius:99px;box-shadow:0 8px 20px rgba(0,0,0,.25);white-space:nowrap}
+.ar-feats{display:grid;gap:10px;margin-top:6px}
+.ar-feat{display:grid;grid-template-columns:42px 1fr;gap:14px;align-items:center;padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--surface)}
+.ar-feat .ic{width:42px;height:42px;border-radius:12px;background:var(--sunk);display:grid;place-items:center}
+.ar-feat b{font-weight:550;font-size:15px;display:block}
+.ar-feat small{color:var(--muted);font-size:13.5px}
+.stores{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ───────── PROCESS ───────── */
+.proc{display:grid;gap:24px}
+@media (min-width:980px){.proc{grid-template-columns:.9fr 1.1fr;gap:56px;align-items:start}}
+.proc-img{border-radius:var(--r-lg);overflow:hidden;position:relative}
+@media (min-width:980px){.proc-img{position:sticky;top:110px}}
+.proc-img img{width:100%;aspect-ratio:4/4.4;object-fit:cover}
+.steps{list-style:none;margin:0;padding:0;position:relative;display:grid}
+.steps::before{content:"";position:absolute;left:19px;top:20px;bottom:20px;width:2px;background:var(--line)}
+.steps .prog{position:absolute;left:19px;top:20px;width:2px;height:calc(100% - 40px);background:var(--accent);transform-origin:top;transform:scaleY(var(--p,0))}
+.step{display:grid;grid-template-columns:40px 1fr;gap:20px;padding:22px 0;position:relative}
+.step .num{width:40px;height:40px;border-radius:99px;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;font-family:var(--f-mono);font-size:13px;position:relative;z-index:1}
+.step h3{font-family:var(--f-display);font-weight:400;font-size:clamp(24px,2.2vw,30px);letter-spacing:-.01em;line-height:1.1;margin-top:4px}
+.step p{color:var(--muted);margin-top:8px;max-width:52ch}
+.step .meta{display:inline-block;margin-top:10px;font-family:var(--f-mono);font-size:12px;padding:5px 10px;border-radius:99px;background:var(--sunk);color:var(--muted)}
+
+/* ───────── GUIDES / BLOG ───────── */
+.guides{display:grid;gap:12px}
+@media (min-width:860px){.guides{grid-template-columns:1fr 1fr}}
+.guide{position:relative;border-radius:var(--r-lg);overflow:hidden;min-height:420px;color:#fff;text-decoration:none;display:grid;align-content:end;isolation:isolate}
+.guide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;transition:transform 1.2s cubic-bezier(.2,.8,.2,1)}
+.guide:hover img{transform:scale(1.04)}
+.guide::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(18,18,18,0) 30%,rgba(18,18,18,.78))}
+.guide-body{padding:clamp(22px,3vw,34px);display:grid;gap:12px;max-width:56ch}
+.guide h3{font-family:var(--f-display);font-weight:350;font-size:clamp(30px,3vw,42px);line-height:1.02;letter-spacing:-.015em}
+.guide p{color:rgba(255,255,255,.84);font-size:15px}
+.posts{display:grid;gap:12px;grid-template-columns:1fr}
+@media (min-width:700px){.posts{grid-template-columns:1fr 1fr}}
+@media (min-width:1100px){.posts{grid-template-columns:repeat(4,1fr)}}
+.post{display:grid;gap:14px;text-decoration:none;align-content:start;min-width:0}
+.post .pi{border-radius:var(--r-md);overflow:hidden;aspect-ratio:4/3}
+.post img{width:100%;height:100%;object-fit:cover;transition:transform 1s cubic-bezier(.2,.8,.2,1)}
+.post:hover img{transform:scale(1.05)}
+.post small{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.post h3{font-size:18px;font-weight:550;line-height:1.3}
+.post p{color:var(--muted);font-size:14px}
+
+/* ───────── CTA / FOOTER ───────── */
+.cta{border-radius:var(--r-lg);background:var(--accent);color:#232221;padding:clamp(28px,5vw,72px);display:grid;gap:28px;position:relative;overflow:hidden}
+@media (min-width:900px){.cta{grid-template-columns:1.3fr .7fr;align-items:end}}
+.cta .h2{font-size:clamp(40px,5.6vw,78px)}
+.cta .btn-dark{background:#232221;color:#F5F5F2}
+.cta-win{position:absolute;right:-60px;top:-60px;width:320px;height:320px;opacity:.16;pointer-events:none}
+.cta p{max-width:48ch;color:#3a3833}
+footer{padding-block:72px 40px}
+.foot{display:grid;gap:36px}
+@media (min-width:900px){.foot{grid-template-columns:1.3fr repeat(3,.7fr)}}
+.foot h4{margin:0 0 14px;font-family:var(--f-mono);font-weight:500;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.foot ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.foot a{text-decoration:none;color:var(--ink);font-size:15px}
+.foot a:hover{text-decoration:underline}
+.news{display:grid;gap:12px;max-width:420px}
+.news-form{display:flex;gap:8px;flex-wrap:wrap}
+.news-form .field{flex:1 1 200px;height:46px;border-radius:99px;border:1px solid var(--line);background:var(--surface);padding:0 16px;min-width:0}
+.news-form .field:focus{outline:none;border-color:var(--ink)}
+.who{display:inline-flex;background:var(--sunk);border-radius:99px;padding:3px;width:max-content}
+.who button{border:0;background:transparent;padding:7px 12px;border-radius:99px;font-size:13px;cursor:pointer;color:var(--muted)}
+.who button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.legal{margin-top:56px;padding-top:24px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between;font-size:13px;color:var(--muted)}
+.legal a{color:var(--muted);text-decoration:none}
+.giant{font-family:var(--f-display);font-weight:300;letter-spacing:-.04em;line-height:.8;font-size:clamp(64px,17vw,250px);color:var(--sunk);margin-top:48px;white-space:nowrap;overflow:hidden;user-select:none}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+
+
+<!-- ───────── NAV ───────── -->
+<header class="nav">
+  <div class="wrap">
+    <nav class="nav-inner" aria-label="Glavna navigacija">
+      <a class="logo" href="#top" aria-label="Moj Prozor — početna">
+        <svg viewBox="0 0 201 69.299" role="img" aria-label="Moj Prozor logo">
+          <path d="M152.184 172.271v-7.407l15.068 3.849 11.457-2.706-.024-.006-31.985-8.172v15.738z" transform="translate(-143.615 -157.829)" fill="currentColor"/>
+          <path d="M177.242 179.909v45.758l-29.831-7.045v-31.668l29.831-7.045m5.489-6.9-40.808 9.637v40.289l40.808 9.638v-59.567z" transform="translate(-141.923 -163.271)" fill="#f1b51c"/>
+          <path transform="translate(49.457 9.735)" fill="#f1b51c" d="M0 0h47.877v17.631H0z"/>
+          <path d="M233.484 207.905q4.089 0 5.7 1.314t1.608 5.352q0 3.795-1.24 5.352t-5.194 1.559H224.3v4.5h-5.54v-18.077zm1.718 6.856a2.367 2.367 0 0 0-.655-1.978 3.976 3.976 0 0 0-2.29-.488H224.3v4.8h8.043a4.07 4.07 0 0 0 2.223-.446 2.193 2.193 0 0 0 .634-1.888z" transform="translate(-169.169 -175.783)" fill="currentColor"/>
+          <path d="M273.334 207.905q3.3 0 4.663 1.276a3.785 3.785 0 0 1 1.063 1.711 8.992 8.992 0 0 1 .355 2.743v.3a11.047 11.047 0 0 1-.137 1.9 3.683 3.683 0 0 1-.545 1.386 3.3 3.3 0 0 1-.954.978 19.858 19.858 0 0 1-2.291.869 5.8 5.8 0 0 1 2.782.958 2.974 2.974 0 0 1 .926 2.5v3.455h-5.616v-1.724a7.683 7.683 0 0 0-.232-2.088q-.232-.794-2.168-.795h-9.243v4.607H256.4v-18.076zm-2.318 9.078a3.713 3.713 0 0 0 2.345-.466 3.154 3.154 0 0 0 .463-2.084 3.558 3.558 0 0 0-.177-1.330 1.252 1.252 0 0 0-.75-.617l-.9-.192h-10.06v4.688h9.079z" transform="translate(-182.516 -175.783)" fill="currentColor"/>
+          <path d="M359.711 221.888v4.092H337.6v-4.092l13.715-9.864h-13.363v-4.119h21.486v4.119l-13.824 9.864z" transform="translate(-211.308 -175.783)" fill="currentColor"/>
+          <path d="M434.629 207.905q3.3 0 4.663 1.276a3.785 3.785 0 0 1 1.063 1.711 8.991 8.991 0 0 1 .355 2.743v.3a11.042 11.042 0 0 1-.137 1.9 3.684 3.684 0 0 1-.545 1.386 3.3 3.3 0 0 1-.954.978 19.859 19.859 0 0 1-2.291.869 5.8 5.8 0 0 1 2.781.958 2.975 2.975 0 0 1 .927 2.5v3.455h-5.616v-1.724a7.655 7.655 0 0 0-.232-2.088q-.231-.794-2.167-.795h-9.243v4.607H417.7v-18.076zm-2.318 9.078a3.715 3.715 0 0 0 2.345-.466 3.158 3.158 0 0 0 .463-2.084 3.558 3.558 0 0 0-.177-1.33 1.252 1.252 0 0 0-.75-.617l-.9-.192h-10.06v4.688h9.079z" transform="translate(-239.71 -175.783)" fill="currentColor"/>
+          <path d="M315.827 212.848v8.082h-14.676v-8.082h14.676m3.141-5.091H298.01a1.976 1.976 0 0 0-1.982 1.970v14.325a1.976 1.976 0 0 0 1.982 1.970h20.957a1.976 1.976 0 0 0 1.982-1.970v-14.325a1.976 1.976 0 0 0-1.982-1.970z" transform="translate(-196.567 -175.73)" fill="currentColor"/>
+          <path d="M395.27 212.848v8.082h-14.676v-8.082h14.676m3.141-5.091h-20.957a1.976 1.976 0 0 0-1.983 1.970v14.325a1.976 1.976 0 0 0 1.983 1.970h20.957a1.976 1.976 0 0 0 1.982-1.970v-14.325a1.976 1.976 0 0 0-1.982-1.970z" transform="translate(-224.737 -175.73)" fill="currentColor"/>
+          <path d="M237.657 188.546v-6.722l-3.914 6.722h-2.171l-3.874-6.722v6.722h-2.544v-8.826h4.3l3.263 5.849 3.222-5.849h4.275v8.826z" transform="translate(-171.436 -165.678)" fill="#fff"/>
+          <path d="M281.112 184.963a5.994 5.994 0 0 1-.386 2.429 1.8 1.8 0 0 1-1.369 1.035q-.385.066-.884.133a6.283 6.283 0 0 1-.778.066h-1.342a15.487 15.487 0 0 1-2.586-.157 1.936 1.936 0 0 1-1.317-.876 4.448 4.448 0 0 1-.472-2.355v-.438h2.6l-.014.582a.907.907 0 0 0 .42.906 2.857 2.857 0 0 0 1.218.205h.72a3.02 3.02 0 0 0 1.052-.16.658.658 0 0 0 .426-.691l.013-.677v-5.245h2.7z" transform="translate(-188.039 -165.678)" fill="#fff"/>
+          <path d="M260.239 182.141v4.072h-7.167v-4.072h7.167m1.534-2.565h-10.235a.98.98 0 0 0-.967.992v7.217a.98.98 0 0 0 .967.993h10.234a.98.98 0 0 0 .968-.993v-7.217a.98.98 0 0 0-.968-.992z" transform="translate(-180.449 -165.626)" fill="#fff"/>
+        </svg>
+      </a>
+      <div class="nav-links">
+        <a href="#proizvodi">Proizvodi</a>
+        <a href="#konfigurator">Konfigurator</a>
+        <a href="#ustede">Uštede</a>
+        <a href="#zasto">Karakteristike</a>
+        <a href="#vodici">Vodiči</a>
+        <a href="#blog">Blog</a>
+      </div>
+      <div class="nav-right">
+        <a class="saved-chip" id="savedChip" href="#konfigurator">Konfiguracije <b id="savedCount">0</b></a>
+        <a class="btn btn-primary btn-sm" href="#konfigurator">Konfiguriši prozor <span class="arr">→</span></a>
+        <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="mobileMenu" aria-label="Otvori meni"><span></span></button>
+      </div>
+    </nav>
+    <div class="mobile-menu" id="mobileMenu" hidden>
+      <a href="#proizvodi">Proizvodi</a>
+      <a href="#konfigurator">Konfigurator</a>
+      <a href="#ustede">Kalkulator uštede</a>
+      <a href="#zasto">Karakteristike</a>
+      <a href="#vodici">Vodiči</a>
+      <a href="#blog">Blog</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+<!-- ───────── HERO ───────── -->
+<section class="hero">
+  <div class="wrap hero-top">
+    <div>
+      <p class="eyebrow">Prozori · Ulazna vrata · Klizni sistemi · Roletne</p>
+      <h1 class="display">Nenadmašan izbor <em>prozora i&nbsp;vrata.</em></h1>
+    </div>
+    <div class="hero-aside">
+      <p class="lede">Konfigurišite prozor po meri za dva minuta. Odmah vidite okvirnu cenu i toplotne vrednosti, a merenje u vašem domu je besplatno.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary" href="#konfigurator">Konfiguriši prozor <span class="arr">→</span></a>
+        <a class="btn btn-ghost" href="#ustede">Izračunaj uštedu</a>
+      </div>
+      <div class="spec-row"><span>Uw od 0,8 W/m²K</span><span>Rw do 42 dB</span><span>RC2 okov</span></div>
+    </div>
+  </div>
+
+  <div class="hero-stage">
+    <div class="hero-window" id="heroWin">
+      <img class="scene" id="heroScene" src="img/interior.jpg" alt="Svetla dnevna soba sa velikim antracit prozorima prema bašti">
+      <div class="hw-sashes" aria-hidden="true"><div class="sash"></div><div class="sash r" id="heroSash"></div></div>
+      <div class="hw-frame" aria-hidden="true"></div>
+      <span class="hw-hint" aria-hidden="true">Pomerite kursor · otvorite krilo</span>
+      <div class="hw-chip chip-a">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#232221" stroke-width="1.8"><path d="M12 3v18M3 12h18"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg></span>
+        <span><b>Uw 0,78 W/m²K</b><small>troslojno staklo, 6 komora</small></span>
+      </div>
+      <div class="hw-chip chip-b">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#232221" stroke-width="1.8" stroke-linecap="round"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/></svg></span>
+        <span><b>−42 dB</b><small>zvučna izolacija</small></span>
+      </div>
+      <div class="hw-chip chip-c">
+        <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#232221" stroke-width="1.8" stroke-linecap="round"><path d="M3 7h18M3 7l2-3h14l2 3M5 7v13h14V7"/><path d="M9 12h6"/></svg></span>
+        <span><b>Merenje 0 RSD</b><small>u vašem domu</small></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="marquee" aria-label="Sistemi i materijali">
+    <div class="marquee-track">
+      <span>Gealan profili</span><span>REHAU Window Solutions</span><span>Artevo</span><span>Acrylcolor</span><span>PVC</span><span>PVC-Aluminijum</span><span>Aluminijum</span><span>Troslojno staklo</span><span>RAL paleta</span>
+      <span>Gealan profili</span><span>REHAU Window Solutions</span><span>Artevo</span><span>Acrylcolor</span><span>PVC</span><span>PVC-Aluminijum</span><span>Aluminijum</span><span>Troslojno staklo</span><span>RAL paleta</span>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── PRODUCTS ───────── -->
+<section class="section" id="proizvodi">
+  <div class="wrap">
+    <div class="sec-head split">
+      <div><p class="eyebrow">Proizvodi</p><h2 class="h2" style="margin-top:16px">Sve iz jednog izvora, <em>od dizajna do ugradnje.</em></h2></div>
+      <p class="lede">Vrhunski prozori i vrata koje kreiramo i ugrađujemo sami. Kvalitetom i cenom prevazilazimo zahteve klijenata.</p>
+    </div>
+    <div class="prod-row" id="prodRow">
+      <a class="prod is-open" href="https://mojprozor.rs/prozori/" target="_blank" rel="noopener">
+        <img src="img/acrylcolor.jpg" alt="Fasada stambene zgrade sa tamnim prozorima">
+        <span class="prod-plus" aria-hidden="true">+</span>
+        <div class="prod-body">
+          <span class="prod-tag">Fiksni · Jednokrilni · Dvokrilni · Balkonski</span>
+          <h3>Prozori</h3>
+          <div class="prod-more"><div>
+            <p>Nije svaki prozor isti. Sistemi profila najnovije generacije, sa geometrijom razrađenom do najsitnijeg detalja.</p>
+            <span class="prod-link">Pogledaj prozore →</span>
+          </div></div>
+        </div>
+      </a>
+      <a class="prod" href="https://mojprozor.rs/ulazna-vrata/" target="_blank" rel="noopener">
+        <img src="img/kuca-render.jpg" alt="Moderna dvospratna kuća sa staklenim vratima">
+        <span class="prod-plus" aria-hidden="true">+</span>
+        <div class="prod-body">
+          <span class="prod-tag">Sigurnost · Izolacija · Stil</span>
+          <h3>Ulazna vrata</h3>
+          <div class="prod-more"><div>
+            <p>Ovde počinje dom. Uvek sigurna, optimalno izolovana i laka za upotrebu, u velikom izboru stilova i boja.</p>
+            <span class="prod-link">Pogledaj vrata →</span>
+          </div></div>
+        </div>
+      </a>
+      <a class="prod" href="https://mojprozor.rs/klizni-sistemi" target="_blank" rel="noopener">
+        <img src="img/trendovi.jpg" alt="Kuća sa velikim kliznim staklenim površinama">
+        <span class="prod-plus" aria-hidden="true">+</span>
+        <div class="prod-body">
+          <span class="prod-tag">HST · Paralelno-klizni</span>
+          <h3>Klizni sistemi</h3>
+          <div class="prod-more"><div>
+            <p>Velike staklene površine koje odražavaju udobnost i eleganciju, od najpouzdanijih materijala.</p>
+            <span class="prod-link">Pogledaj klizne sisteme →</span>
+          </div></div>
+        </div>
+      </a>
+      <a class="prod" href="https://mojprozor.rs/roletne/" target="_blank" rel="noopener">
+        <img src="img/house.jpg" alt="Kuća u sumrak sa osvetljenim prozorima">
+        <span class="prod-plus" aria-hidden="true">+</span>
+        <div class="prod-body">
+          <span class="prod-tag">Privatnost · Zaštita · Efikasnost</span>
+          <h3>Roletne</h3>
+          <div class="prod-more"><div>
+            <p>Mnogo više od zatamnjenja: privatnost, zaštita od toplote i hladnoće i veći stepen zaštite od provale.</p>
+            <span class="prod-link">Pogledaj roletne →</span>
+          </div></div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── CONFIGURATOR ───────── -->
+<section class="cfg-band section" id="konfigurator">
+  <div class="wrap">
+    <div class="sec-head split">
+      <div><p class="eyebrow">Konfigurator</p><h2 class="h2" style="margin-top:16px">Nacrtajte svoj prozor. <em>Cena se računa dok birate.</em></h2></div>
+      <p class="lede">Tip, mere u milimetrima, boja profila, staklo i dodaci. Konfiguraciju sačuvajte ili pošaljite i dobijte termin za besplatno merenje.</p>
+    </div>
+
+    <div class="cfg">
+      <div class="cfg-stage">
+        <div class="cfg-toolbar">
+          <span class="cfg-code" id="cfgCode">MP-JK-0900×1200</span>
+          <div class="view-toggle" role="group" aria-label="Prikaz">
+            <button type="button" id="viewDraw" aria-pressed="true">Crtež</button>
+            <button type="button" id="viewRoom" aria-pressed="false">U prostoru</button>
+          </div>
+        </div>
+        <div class="cfg-canvas" id="cfgCanvas">
+          <svg id="winSvg" viewBox="0 0 600 520" role="img" aria-label="Prikaz konfigurisanog prozora sa merama"></svg>
+          <div class="cfg-xsec" aria-live="polite">
+            <svg id="xsec" viewBox="0 0 46 40" aria-hidden="true"></svg>
+            <span><b id="xsecTitle">4-12-4-12-4</b><small id="xsecSub">troslojno, topla lajsna</small></span>
+          </div>
+        </div>
+      </div>
+
+      <form class="cfg-panel" id="cfgForm" onsubmit="return false">
+        <fieldset class="fieldset">
+          <legend><span>Tip</span><small id="typeHint">Otklopno-zaokretni</small></legend>
+          <div class="types" id="types"></div>
+        </fieldset>
+
+        <fieldset class="fieldset">
+          <legend><span>Mere</span><small>zidarski otvor, mm</small></legend>
+          <div class="range">
+            <div class="range-top"><label for="w">Širina</label><output id="wOut" for="w">900 mm</output></div>
+            <input type="range" id="w" min="400" max="1300" step="10" value="900">
+          </div>
+          <div class="range">
+            <div class="range-top"><label for="h">Visina</label><output id="hOut" for="h">1200 mm</output></div>
+            <input type="range" id="h" min="400" max="2000" step="10" value="1200">
+          </div>
+        </fieldset>
+
+        <fieldset class="fieldset">
+          <legend><span>Boja profila</span><small id="colorHint">RAL 9016</small></legend>
+          <div class="swatches" id="colors"></div>
+        </fieldset>
+
+        <fieldset class="fieldset">
+          <legend><span>Staklo</span><small id="glassHint">Ug 0,6</small></legend>
+          <div class="seg" id="glass"></div>
+        </fieldset>
+
+        <fieldset class="fieldset">
+          <legend><span>Kvaka i dodaci</span></legend>
+          <div class="swatches" id="handles"></div>
+          <div class="toggles">
+            <label class="tg" for="roller">Roletna <input type="checkbox" id="roller"></label>
+            <label class="tg" for="mesh">Komarnik <input type="checkbox" id="mesh"></label>
+          </div>
+        </fieldset>
+
+        <div class="summary" aria-live="polite">
+          <div class="sum-grid">
+            <div><small>Površina</small><b id="sArea">1,08 m²</b></div>
+            <div><small>Uw prozora</small><b id="sUw">0,91</b></div>
+            <div><small>Zvučna izol.</small><b id="sRw">Rw 35 dB</b></div>
+          </div>
+          <div class="price">
+            <div><small>Okvirna cena sa PDV-om, bez ugradnje</small><strong id="sPrice">24.900 – 28.400 RSD</strong></div>
+          </div>
+          <div class="sum-actions" id="sumActions">
+            <button type="button" class="btn btn-primary" id="askBtn">Zatraži ponudu <span class="arr">→</span></button>
+            <button type="button" class="btn btn-ghost" id="saveBtn">Sačuvaj</button>
+          </div>
+          <div class="lead" id="lead" hidden>
+            <div class="lead-grid">
+              <input class="inp" id="leadName" name="ime" placeholder="Ime i prezime" autocomplete="name" required>
+              <input class="inp" id="leadPhone" name="telefon" placeholder="Telefon" autocomplete="tel" inputmode="tel" required>
+              <input class="inp" id="leadCity" name="grad" placeholder="Grad" autocomplete="address-level2">
+              <input class="inp" id="leadQty" name="kolicina" placeholder="Broj komada" inputmode="numeric">
+            </div>
+            <button type="button" class="btn btn-primary" id="sendBtn">Pošalji konfiguraciju <span class="arr">→</span></button>
+            <p class="note" id="leadErr" role="alert"></p>
+          </div>
+          <div class="lead-done" id="leadDone" hidden>
+            <b id="doneTitle">Konfiguracija je spremna.</b>
+            <span class="note" style="opacity:.85">Prototip: u produkciji ovaj korak šalje upit prodaji i nudi termin za merenje.</span>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── SAVINGS ───────── -->
+<section class="section" id="ustede">
+  <div class="wrap">
+    <div class="sec-head split">
+      <div><p class="eyebrow">Kalkulator energetske efikasnosti</p><h2 class="h2" style="margin-top:16px">Koliko vas stari prozori <em>koštaju svake zime?</em></h2></div>
+      <p class="lede">Prozori i vrata su najveći rasipnici energije u kući. Unesite površinu i tip postojeće stolarije i pogledajte godišnju razliku.</p>
+    </div>
+    <div class="sav">
+      <form class="sav-card" id="savForm" onsubmit="return false">
+        <div class="range">
+          <div class="range-top"><label for="area">Ukupna površina prozora</label><output id="areaOut" for="area">14 m²</output></div>
+          <input type="range" id="area" min="4" max="40" step="1" value="14">
+        </div>
+        <fieldset class="fieldset">
+          <legend><span>Postojeći prozori</span></legend>
+          <div class="seg" id="oldWin"></div>
+        </fieldset>
+        <fieldset class="fieldset">
+          <legend><span>Novi prozori</span></legend>
+          <div class="seg" id="newWin"></div>
+        </fieldset>
+        <fieldset class="fieldset">
+          <legend><span>Grejanje</span><small id="fuelHint">≈ 12 RSD/kWh</small></legend>
+          <div class="seg" id="fuel"></div>
+        </fieldset>
+        <p class="foot-note">Procena po formuli ΔU × A × 2.600 K·dana (prosek za Beograd). Cene energije su orijentacione; stvarna ušteda zavisi od zgrade i navika.</p>
+      </form>
+      <div class="sav-out">
+        <img src="img/energija.jpg" alt="Žena sa šoljom kafe sedi uz veliki prozor">
+        <div class="sav-res" aria-live="polite">
+          <div>
+            <p style="opacity:.8;font-size:14px">Godišnja ušteda</p>
+            <div class="big-num"><span id="saveRsd">17.900</span><small>RSD</small></div>
+          </div>
+          <div class="kpis">
+            <div class="kpi"><small>Energija</small><b id="saveKwh">1.490 kWh</b></div>
+            <div class="kpi"><small>Za 10 godina</small><b id="save10">179.000</b></div>
+            <div class="kpi"><small>Manje gubitaka</small><b id="savePct">71%</b></div>
+          </div>
+          <div class="bars">
+            <div class="bar"><span>Sada</span><div class="track"><div class="fill" id="barOld" style="width:100%"></div></div><b id="lossOld">2.100 kWh</b></div>
+            <div class="bar new"><span>Moj prozor</span><div class="track"><div class="fill" id="barNew" style="width:29%"></div></div><b id="lossNew">610 kWh</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── PROFILE ANATOMY ───────── -->
+<section class="section" id="profil" style="padding-top:0">
+  <div class="wrap anat">
+    <div class="anat-fig" id="anatFig">
+      <img src="img/profile.jpg" alt="Presek belog PVC profila sa troslojnim staklom">
+      <button class="hot" style="left:57%;top:24%" data-i="0" aria-pressed="true" aria-label="Troslojno staklo">1</button>
+      <button class="hot" style="left:70%;top:56%" data-i="1" aria-pressed="false" aria-label="Topla distanc lajsna">2</button>
+      <button class="hot" style="left:73%;top:74%" data-i="2" aria-pressed="false" aria-label="EPDM zaptivke">3</button>
+      <button class="hot" style="left:66%;top:84%" data-i="3" aria-pressed="false" aria-label="Čelično ojačanje">4</button>
+      <button class="hot" style="left:27%;top:76%" data-i="4" aria-pressed="false" aria-label="Višekomorni profil">5</button>
+    </div>
+    <div>
+      <p class="eyebrow">Anatomija profila</p>
+      <h2 class="h2" style="margin:16px 0 28px">Razlika je u <em>preseku.</em></h2>
+      <div class="anat-list" id="anatList">
+        <button class="anat-item" aria-expanded="true" data-i="0"><span class="n">1</span><span><h3>Troslojno staklo</h3><p><span>Tri stakla i dve komore ispunjene argonom. Ug do 0,6 W/m²K, a unutrašnje staklo ostaje toplo i bez kondenzacije.</span></p></span><span class="val">Ug 0,6</span></button>
+        <button class="anat-item" aria-expanded="false" data-i="1"><span class="n">2</span><span><h3>Topla distanc lajsna</h3><p><span>Plastična umesto aluminijumske lajsne smanjuje toplotni most na ivici stakla, mestu gde se najčešće javlja vlaga.</span></p></span><span class="val">ψ 0,04</span></button>
+        <button class="anat-item" aria-expanded="false" data-i="2"><span class="n">3</span><span><h3>EPDM zaptivke</h3><p><span>Tri nivoa zaptivanja štite od promaje, kiše pod vetrom i buke. Elastične ostaju i posle mnogo godina.</span></p></span><span class="val">3 nivoa</span></button>
+        <button class="anat-item" aria-expanded="false" data-i="3"><span class="n">4</span><span><h3>Čelično ojačanje</h3><p><span>Pocinkovani čelik u ramu i krilu drži geometriju i kod velikih i teških krila, pa se prozor ne spušta i ne vuče.</span></p></span><span class="val">1,5 mm</span></button>
+        <button class="anat-item" aria-expanded="false" data-i="4"><span class="n">5</span><span><h3>Višekomorni profil</h3><p><span>Šest komora usporava prolaz toplote kroz ram. Broj komora nije sve, ali uz dubinu profila određuje Uf vrednost.</span></p></span><span class="val">6 komora</span></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── BENTO ───────── -->
+<section class="section" id="zasto" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head split">
+      <div><p class="eyebrow">Karakteristike</p><h2 class="h2" style="margin-top:16px">Mirniji, topliji i <em>sigurniji dom.</em></h2></div>
+      <p class="lede">Proizvodi iznad postojećih industrijskih standarda, dizajnirani da besprekorno rade po kiši, snegu, vetru i gradu.</p>
+    </div>
+    <div class="bento">
+      <article class="tile t-a">
+        <div class="db-row">
+          <div><p class="eyebrow">Rešite se buke</p><h3 class="h3" style="margin-top:10px">Ulica ostaje napolju.</h3></div>
+          <div class="pill-toggle" role="group" aria-label="Uporedi prozore">
+            <button type="button" id="nOld" aria-pressed="false">Stari prozor</button>
+            <button type="button" id="nNew" aria-pressed="true">Moj prozor</button>
+          </div>
+        </div>
+        <div class="wave" id="wave" aria-hidden="true"></div>
+        <div class="db-row">
+          <div class="db"><span id="dbVal">33</span><small>dB u sobi</small></div>
+          <p style="max-width:40ch">Saobraćaj od 75 dB spolja. Uz zvučno staklo u sobi ostaje nivo tihog razgovora, preduslov mirnog sna.</p>
+        </div>
+      </article>
+      <article class="tile t-b">
+        <p class="eyebrow">Dizajn</p>
+        <h3 class="h3">Oči svake zgrade.</h3>
+        <div class="mini-win"><svg id="miniWin" viewBox="0 0 100 120" aria-hidden="true"></svg></div>
+        <div class="dots" id="miniDots" role="group" aria-label="Boja profila"></div>
+      </article>
+      <article class="tile t-c">
+        <p class="eyebrow">Sigurnost</p>
+        <div class="rc">RC2</div>
+        <ul class="checks"><li>Okov sa sigurnosnim čepovima</li><li>Kvaka sa zaključavanjem</li><li>Zaštita dece od otvaranja</li></ul>
+      </article>
+      <article class="tile t-d">
+        <p class="eyebrow">Otpornost</p>
+        <div class="tile-media"><img src="img/otpornost.jpg" alt="Dete gleda kroz krovni prozor dok pada sneg" style="aspect-ratio:16/10;object-fit:cover;width:100%"></div>
+        <div class="weather"><span>Kiša</span><span>Sneg</span><span>Vetar</span><span>Grad</span></div>
+      </article>
+      <article class="tile t-e">
+        <p class="eyebrow">Smart Home</p>
+        <h3 class="h3">Dom koji javlja.</h3>
+        <div class="smart">
+          <div class="smart-row"><span>Dnevna soba · prozor</span><span class="status" id="stWin">Zatvoren</span></div>
+          <div class="smart-row"><span>Spavaća soba · roletna</span><span class="status on" id="stRoll">Spuštena</span></div>
+          <label class="tg" for="awayMode">Režim „Nisam kod kuće” <input type="checkbox" id="awayMode" checked></label>
+        </div>
+      </article>
+      <article class="tile t-f">
+        <div class="tf-body">
+          <p class="eyebrow">Energetska efikasnost</p>
+          <h3 class="h2" style="font-size:clamp(28px,3vw,40px)">Niski računi zimi, <em>sveži leti.</em></h3>
+          <p style="max-width:52ch">Misija funkcioniše samo ako su sve karike u lancu ispoštovane. Zamena dotrajalih prozora i vrata je najvažniji korak.</p>
+          <div><a class="btn btn-ghost" href="#ustede">Izračunaj uštedu <span class="arr">→</span></a></div>
+        </div>
+        <img src="img/tisina.jpg" alt="Majka sa bebom sedi uz veliki svetao prozor">
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── AR ───────── -->
+<section class="section" id="ar" style="padding-top:0">
+  <div class="wrap ar">
+    <div class="ar-media">
+      <img src="img/ar-app.jpg" alt="Tablet sa AR prikazom novih prozora na fasadi kuće">
+      <div class="ar-pins" aria-hidden="true">
+        <span class="ar-pin" style="left:63%;top:22%">Antracit · RAL 7016</span>
+        <span class="ar-pin" style="left:58%;top:70%">Dvokrilni 1400 × 1400</span>
+      </div>
+    </div>
+    <div style="display:grid;gap:18px">
+      <p class="eyebrow">AR aplikacija Window Viewer</p>
+      <h2 class="h2">Vidite nove prozore <em>pre nego što ih naručite.</em></h2>
+      <p class="lede">Aplikacija koristi proširenu stvarnost da postavi prozor na vašu fasadu ili u vašu sobu, u stvarnoj veličini.</p>
+      <div class="ar-feats">
+        <div class="ar-feat"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M12 3v18M4 12h16"/></svg></span><span><b>Oblici</b><small>Fiksni, jednokrilni, dvokrilni, balkonski</small></span></div>
+        <div class="ar-feat"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16z" fill="currentColor"/></svg></span><span><b>Boje</b><small>Bela, antracit, dekori drveta</small></span></div>
+        <div class="ar-feat"><span class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="8" y="3" width="6" height="8" rx="3"/><path d="M11 8v12"/></svg></span><span><b>Kvake</b><small>Isprobajte stil pre izbora</small></span></div>
+      </div>
+      <div class="stores"><a class="btn btn-dark" href="https://mojprozor.rs/" target="_blank" rel="noopener">Saznaj više o aplikaciji <span class="arr">→</span></a></div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── PROCESS ───────── -->
+<section class="section cfg-band" id="proces">
+  <div class="wrap proc">
+    <div class="proc-img"><img src="img/tim.jpg" alt="Dva montera Moj Prozor u proizvodnom pogonu među ramovima prozora"></div>
+    <div>
+      <p class="eyebrow">Kako kupiti</p>
+      <h2 class="h2" style="margin:16px 0 24px">Od konfiguracije <em>do ugradnje.</em></h2>
+      <ol class="steps" id="steps">
+        <span class="prog" id="stepProg" aria-hidden="true"></span>
+        <li class="step"><span class="num">1</span><div><h3>Konfigurišete online</h3><p>Izaberete tip, mere i boju, dobijete okvirnu cenu i sačuvate konfiguraciju.</p><span class="meta">2 minuta</span></div></li>
+        <li class="step"><span class="num">2</span><div><h3>Besplatno merenje</h3><p>Naš tehničar meri otvore na licu mesta i proverava zidove, špalete i prag.</p><span class="meta">0 RSD</span></div></li>
+        <li class="step"><span class="num">3</span><div><h3>Proizvodnja po meri</h3><p>Svaki prozor se pravi za vaš otvor, sa kontrolom kvaliteta pre isporuke.</p><span class="meta">Precizno u milimetar</span></div></li>
+        <li class="step"><span class="num">4</span><div><h3>Ugradnja i garancija</h3><p>Profesionalna montaža, završna obrada i podrška posle ugradnje.</p><span class="meta">Jedan izvor za sve</span></div></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── GUIDES ───────── -->
+<section class="section" id="vodici">
+  <div class="wrap">
+    <div class="sec-head split">
+      <div><p class="eyebrow">Vodiči</p><h2 class="h2" style="margin-top:16px">Svi detalji za <em>vaše planiranje.</em></h2></div>
+      <p class="lede">Tu smo da uvek ponudimo pravu uslugu za realizaciju vaših ideja.</p>
+    </div>
+    <div class="guides">
+      <a class="guide" href="https://mojprozor.rs/" target="_blank" rel="noopener">
+        <img src="img/couple.jpg" alt="Par pije kafu uz prozor sa pogledom na grad">
+        <div class="guide-body"><p class="eyebrow" style="color:rgba(255,255,255,.8)">Za vlasnike</p><h3>Vodič za zamenu stolarije</h3><p>Zamena stolarije je dugoročna investicija. Odluku donesite uz istraživanje i savet stručnjaka.</p></div>
+      </a>
+      <a class="guide" href="https://partneri.mojprozor.rs/" target="_blank" rel="noopener">
+        <img src="img/arhitekte.jpg" alt="Preseci aluminijumskih profila na arhitektonskim nacrtima">
+        <div class="guide-body"><p class="eyebrow" style="color:rgba(255,255,255,.8)">Za profesionalce</p><h3>Vodič za arhitekte</h3><p>Uzorci proizvoda, tehnički podaci za planiranje i direktan kontakt sa stručnjacima.</p></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── BLOG ───────── -->
+<section class="section" id="blog" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head split">
+      <div><p class="eyebrow">Saveti o stolariji</p><h2 class="h2" style="margin-top:16px">Ne uzimajte stvari <em>zdravo za gotovo.</em></h2></div>
+      <div><a class="btn btn-ghost" href="https://mojprozor.rs/blog/" target="_blank" rel="noopener">Svi članci <span class="arr">→</span></a></div>
+    </div>
+    <div class="posts">
+      <a class="post" href="https://mojprozor.rs/blog/" target="_blank" rel="noopener"><div class="pi"><img src="img/acrylcolor.jpg" alt="Acrylcolor PVC prozori na fasadi" loading="lazy"></div><small>Materijali</small><h3>Acrylcolor prozori: investicija koja štedi i traje</h3><p>Otporni na habanje i UV zračenje, ne blede.</p></a>
+      <a class="post" href="https://mojprozor.rs/blog/" target="_blank" rel="noopener"><div class="pi"><img src="img/trendovi.jpg" alt="Artevo prozori i vrata na modernoj kući" loading="lazy"></div><small>Trendovi</small><h3>Trendovi 2025: pametna, održiva i digitalna stolarija</h3><p>Propisi, ARTEVO inovacije i smart tehnologije.</p></a>
+      <a class="post" href="https://mojprozor.rs/blog/" target="_blank" rel="noopener"><div class="pi"><img src="img/visekomorni.jpg" alt="PVC profil sa više komora i čeličnim ojačanjem" loading="lazy"></div><small>Tehnika</small><h3>Višekomorni profili: da li garantuju dug vek?</h3><p>Šta broj komora zaista govori o kvalitetu.</p></a>
+      <a class="post" href="https://mojprozor.rs/blog/" target="_blank" rel="noopener"><div class="pi"><img src="img/enterijer.jpg" alt="Minimalistički prozori sa uskim okvirima u enterijeru" loading="lazy"></div><small>Arhitektura</small><h3>Prozori i vrata za arhitekte: dizajn, svetlost i efikasnost</h3><p>Estetika, energetski standard i tehnička preciznost.</p></a>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── CTA ───────── -->
+<section class="wrap" style="padding-bottom:24px">
+  <div class="cta">
+    <svg class="cta-win" viewBox="0 0 100 100" aria-hidden="true"><rect x="8" y="8" width="84" height="84" rx="3" fill="none" stroke="#232221" stroke-width="5"/><path d="M50 8v84M8 50h84" stroke="#232221" stroke-width="4"/></svg>
+    <div style="display:grid;gap:18px">
+      <h2 class="h2">Vreme je za potpuno nov <em>doživljaj prozora.</em></h2>
+      <p>Napravite konfiguraciju za dva minuta. Ostalo, od merenja do ugradnje, prepustite nama.</p>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-start">
+      <a class="btn btn-dark" href="#konfigurator">Konfiguriši prozor <span class="arr">→</span></a>
+      <a class="btn btn-ghost" style="border-color:rgba(35,34,33,.3);color:#232221" href="https://mojprozor.rs/mapa-distributera" target="_blank" rel="noopener">Mapa distributera</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ───────── FOOTER ───────── -->
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div class="news">
+        <a class="logo" href="#top" aria-label="Moj Prozor" style="width:150px" id="footLogo"></a>
+        <h4 style="margin-top:12px">Ne propustite naše vesti</h4>
+        <p style="color:var(--muted);font-size:15px">Vesti o proizvodima, ponudama i inovacijama kompanije Moj Prozor.</p>
+        <div class="who" role="group" aria-label="Ja sam">
+          <button type="button" aria-pressed="true" id="whoA">Fizičko lice</button>
+          <button type="button" aria-pressed="false" id="whoB">Pravno lice</button>
+        </div>
+        <form class="news-form" id="newsForm">
+          <input class="field" id="newsEmail" type="email" placeholder="Vaša e-mail adresa" aria-label="E-mail adresa" required>
+          <button class="btn btn-dark" type="submit">Prijavi se</button>
+        </form>
+        <p class="foot-note" id="newsMsg" role="status"></p>
+      </div>
+      <div><h4>Proizvodi</h4><ul>
+        <li><a href="https://mojprozor.rs/prozori/" target="_blank" rel="noopener">Prozori</a></li>
+        <li><a href="https://mojprozor.rs/ulazna-vrata/" target="_blank" rel="noopener">Ulazna vrata</a></li>
+        <li><a href="https://mojprozor.rs/klizni-sistemi" target="_blank" rel="noopener">Klizni sistemi</a></li>
+        <li><a href="https://mojprozor.rs/roletne/" target="_blank" rel="noopener">Roletne</a></li>
+        <li><a href="https://mojprozor.rs/uradi-sam" target="_blank" rel="noopener">Uradi sam</a></li></ul></div>
+      <div><h4>Kontakt i info</h4><ul>
+        <li><a href="https://mojprozor.rs/mapa-distributera" target="_blank" rel="noopener">Mapa distributera</a></li>
+        <li><a href="https://mojprozor.rs/kako-kupiti" target="_blank" rel="noopener">Kako kupiti?</a></li>
+        <li><a href="https://mojprozor.rs/podrska" target="_blank" rel="noopener">Podrška</a></li>
+        <li><a href="https://mojprozor.rs/kontakt/" target="_blank" rel="noopener">Kontakt</a></li></ul></div>
+      <div><h4>Kompanija</h4><ul>
+        <li><a href="https://mojprozor.rs/o-nama" target="_blank" rel="noopener">O nama</a></li>
+        <li><a href="https://mojprozor.rs/karijera" target="_blank" rel="noopener">Karijera</a></li>
+        <li><a href="https://mojprozor.rs/b2b/" target="_blank" rel="noopener">B2B – Veleprodaja</a></li>
+        <li><a href="https://partneri.mojprozor.rs/" target="_blank" rel="noopener">Za profesionalce</a></li></ul></div>
+    </div>
+    <div class="giant" aria-hidden="true">moj prozor</div>
+    <div class="legal"><span>© 2026 Moj Prozor. Nenadmašan izbor prozora i vrata.</span><span style="display:flex;gap:20px;flex-wrap:wrap"><a href="https://mojprozor.rs/" target="_blank" rel="noopener">Uslovi korišćenja</a><a href="https://mojprozor.rs/" target="_blank" rel="noopener">Politika privatnosti</a><a href="https://mojprozor.rs/" target="_blank" rel="noopener">Kolačići</a></span></div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+(() => {
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const nf = new Intl.NumberFormat('sr-Latn-RS');
+const nf2 = new Intl.NumberFormat('sr-Latn-RS', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+if (matchMedia('(hover: none)').matches) $('.hw-hint').textContent = 'Skrolujte · krilo se otvara';
+/* footer logo reuses header svg */
+$('#footLogo').innerHTML = $('.logo svg').outerHTML;
+
+/* mobile menu */
+const menuBtn = $('#menuBtn'), menu = $('#mobileMenu');
+menuBtn.addEventListener('click', () => { const o = menu.hidden; menu.hidden = !o; menuBtn.setAttribute('aria-expanded', String(o)); });
+$$('#mobileMenu a').forEach(a => a.addEventListener('click', () => { menu.hidden = true; menuBtn.setAttribute('aria-expanded', 'false'); }));
+
+/* ───────── HERO sash: scroll + pointer ───────── */
+const heroWin = $('#heroWin'), sash = $('#heroSash'), scene = $('#heroScene');
+let scrollOpen = 0, hoverOpen = 0, cur = 0, px = 0, py = 0, cx = 0, cy = 0, introOpen = 0;
+heroWin.addEventListener('pointermove', e => {
+  const r = heroWin.getBoundingClientRect();
+  const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+  hoverOpen = Math.max(0, (x - .35) / .65) * 52;
+  px = (x - .5); py = (y - .5);
+});
+heroWin.addEventListener('pointerleave', () => { hoverOpen = 0; px = py = 0; });
+function heroTick() {
+  const target = Math.max(scrollOpen, hoverOpen, introOpen);
+  cur += (target - cur) * .08; cx += (px - cx) * .06; cy += (py - cy) * .06;
+  sash.style.transform = `rotateY(${-cur}deg)`;
+  sash.style.boxShadow = `inset 0 0 0 1px rgba(255,255,255,.12), ${(-cur / 2).toFixed(1)}px 0 ${(cur).toFixed(0)}px rgba(0,0,0,${(cur / 160).toFixed(3)})`;
+  scene.style.transform = `translate3d(${(-cx * 18).toFixed(2)}px, ${(-cy * 12).toFixed(2)}px, 0)`;
+  requestAnimationFrame(heroTick);
+}
+if (!reduce) { requestAnimationFrame(heroTick); setTimeout(() => { introOpen = 26; setTimeout(() => introOpen = 0, 1400); }, 700); }
+
+/* ───────── Products accordion ───────── */
+const prods = $$('#prodRow .prod');
+const openProd = p => prods.forEach(x => x.classList.toggle('is-open', x === p));
+prods.forEach(p => {
+  p.addEventListener('mouseenter', () => matchMedia('(min-width:821px)').matches && openProd(p));
+  p.addEventListener('focus', () => openProd(p));
+  p.addEventListener('click', e => { if (!p.classList.contains('is-open')) { e.preventDefault(); openProd(p); } });
+});
+
+/* ───────── CONFIGURATOR ───────── */
+const TYPES = {
+  fx: { name: 'Fiksni', hint: 'Fiksno ostakljenje', code: 'FX', panels: 1, w: [300, 2400, 1000], h: [300, 2400, 1000], m2: 9000, sash: 0, uf: 1.0 },
+  jk: { name: 'Jednokrilni', hint: 'Otklopno-zaokretni', code: 'JK', panels: 1, w: [400, 1300, 900], h: [400, 2000, 1200], m2: 14000, sash: 1, uf: 1.0 },
+  dk: { name: 'Dvokrilni', hint: 'Otklopno-zaokretni + zaokretni', code: 'DK', panels: 2, w: [800, 2400, 1400], h: [500, 2000, 1400], m2: 15500, sash: 2, uf: 1.0 },
+  bv: { name: 'Balkonska vrata', hint: 'Otklopno-zaokretna, niski prag', code: 'BV', panels: 1, w: [700, 1200, 900], h: [1900, 2500, 2200], m2: 16500, sash: 1, uf: 1.0 },
+  kl: { name: 'Klizni', hint: 'Podizno-klizni (HST)', code: 'KL', panels: 2, w: [1800, 5000, 2800], h: [1900, 2700, 2200], m2: 26000, sash: 1, uf: 1.3 },
+};
+const COLORS = [
+  { id: 'bela', name: 'Bela', ral: 'RAL 9016', c: '#F4F4F0', e: '#C9C9C2', code: 'BE', k: 1 },
+  { id: 'antracit', name: 'Antracit', ral: 'RAL 7016', c: '#3A4045', e: '#252A2E', code: 'AN', k: 1.18 },
+  { id: 'hrast', name: 'Zlatni hrast', ral: 'Dekor folija', c: '#B47A43', e: '#7E5128', code: 'ZH', k: 1.2, grain: true },
+  { id: 'orah', name: 'Orah', ral: 'Dekor folija', c: '#6B4A33', e: '#45301F', code: 'OR', k: 1.2, grain: true },
+  { id: 'crna', name: 'Crna', ral: 'RAL 9005', c: '#232323', e: '#0F0F0F', code: 'CR', k: 1.18 },
+];
+const GLASS = [
+  { id: 'g2', name: 'Dvoslojno', sub: '4-16-4 · Ug 1,1', ug: 1.1, rw: 32, add: 0, panes: 2, code: '2S', title: '4-16-4', desc: 'dvoslojno, argon' },
+  { id: 'g3', name: 'Troslojno', sub: '4-12-4-12-4 · Ug 0,6', ug: 0.6, rw: 35, add: 2500, panes: 3, code: '3S', title: '4-12-4-12-4', desc: 'troslojno, topla lajsna' },
+  { id: 'g3z', name: 'Troslojno zvučno', sub: '6-12-4-12-8 · Rw 42', ug: 0.6, rw: 42, add: 4500, panes: 3, code: '3Z', title: '6-12-4-12-8', desc: 'zvučno, laminat' },
+];
+const HANDLES = [
+  { id: 'bela', name: 'Bela', c: '#F2F2EE' }, { id: 'inox', name: 'Inox', c: '#B9BCBE' }, { id: 'crna', name: 'Crna', c: '#1D1D1D' },
+];
+const st = { type: 'jk', w: 900, h: 1200, color: 'bela', glass: 'g3', handle: 'bela', roller: false, mesh: false };
+
+const typeIcon = t => {
+  const s = 'fill="none" stroke="currentColor" stroke-width="1.6"';
+  const tri = (x1, y1, x2, y2, x3, y3) => `<path d="M${x1} ${y1}L${x2} ${y2}L${x3} ${y3}" ${s} stroke-dasharray="2 2" opacity=".7"/>`;
+  if (t === 'fx') return `<svg viewBox="0 0 34 40"><rect x="3" y="3" width="28" height="34" rx="1" ${s}/><rect x="7" y="7" width="20" height="26" ${s} opacity=".5"/></svg>`;
+  if (t === 'jk') return `<svg viewBox="0 0 34 40"><rect x="3" y="3" width="28" height="34" rx="1" ${s}/>${tri(29, 6, 6, 20, 29, 34)}</svg>`;
+  if (t === 'dk') return `<svg viewBox="0 0 34 40"><rect x="3" y="3" width="28" height="34" rx="1" ${s}/><path d="M17 3v34" ${s}/>${tri(15, 6, 5, 20, 15, 34)}${tri(19, 6, 29, 20, 19, 34)}</svg>`;
+  if (t === 'bv') return `<svg viewBox="0 0 34 40"><rect x="7" y="1" width="20" height="38" rx="1" ${s}/>${tri(25, 4, 10, 20, 25, 36)}</svg>`;
+  return `<svg viewBox="0 0 34 40"><rect x="1" y="7" width="32" height="26" rx="1" ${s}/><path d="M17 7v26" ${s}/><path d="M28 20h-8m3-3-3 3 3 3" ${s}/></svg>`;
+};
+$('#types').innerHTML = Object.entries(TYPES).map(([k, t]) =>
+  `<div class="type-opt"><input type="radio" name="type" id="t-${k}" value="${k}" ${k === st.type ? 'checked' : ''}><label for="t-${k}">${typeIcon(k)}${t.name}</label></div>`).join('');
+$('#colors').innerHTML = COLORS.map(c =>
+  `<div class="sw"><input type="radio" name="color" id="c-${c.id}" value="${c.id}" ${c.id === st.color ? 'checked' : ''}><label for="c-${c.id}"><i style="background:${c.grain ? `repeating-linear-gradient(100deg,${c.c} 0 3px,${c.e} 3px 4px,${c.c} 4px 8px)` : c.c}"></i>${c.name}</label></div>`).join('');
+$('#glass').innerHTML = GLASS.map(g =>
+  `<div class="sw"><input type="radio" name="glass" id="g-${g.id}" value="${g.id}" ${g.id === st.glass ? 'checked' : ''}><label for="g-${g.id}"><b>${g.name}</b><small>${g.sub}</small></label></div>`).join('');
+$('#handles').innerHTML = HANDLES.map(hd =>
+  `<div class="sw"><input type="radio" name="handle" id="hd-${hd.id}" value="${hd.id}" ${hd.id === st.handle ? 'checked' : ''}><label for="hd-${hd.id}"><i style="background:${hd.c}"></i>${hd.name}</label></div>`).join('');
+
+const wIn = $('#w'), hIn = $('#h');
+const setP = el => el.style.setProperty('--p', ((el.value - el.min) / (el.max - el.min) * 100) + '%');
+
+function calc() {
+  const T = TYPES[st.type], G = GLASS.find(g => g.id === st.glass), C = COLORS.find(c => c.id === st.color);
+  const W = st.w / 1000, H = st.h / 1000, A = W * H;
+  const f0 = 0.07, fs = st.type === 'fx' ? 0.02 : 0.075, mull = T.panels > 1 ? (st.type === 'kl' ? 0.05 : 0.06) : 0;
+  const Wi = W - 2 * f0, Hi = H - 2 * f0;
+  const pw = (Wi - (T.panels - 1) * mull) / T.panels;
+  const gw = Math.max(pw - 2 * fs, .05), gh = Math.max(Hi - 2 * fs, .05);
+  const Ag = gw * gh * T.panels, lg = 2 * (gw + gh) * T.panels;
+  const Af = Math.max(A - Ag, 0);
+  const uw = (Ag * G.ug + Af * T.uf + lg * 0.04) / A;
+  let price = (A * T.m2 + T.sash * 6000 + A * G.add) * C.k;
+  if (st.roller) price += Math.max(A, 1) * 7000;
+  if (st.mesh) price += Math.max(T.sash, 1) * 4500;
+  const lo = Math.round(price * 0.94 / 100) * 100, hi = Math.round(price * 1.1 / 100) * 100;
+  return { A, uw, rw: G.rw, lo, hi, T, G, C };
+}
+
+function drawXsec(G) {
+  const lines = [];
+  const xs = G.panes === 2 ? [14, 32] : [10, 23, 36];
+  xs.forEach((x, i) => {
+    const thick = G.id === 'g3z' && (i === 0 || i === xs.length - 1) ? 3.2 : 2;
+    lines.push(`<rect x="${x - thick / 2}" y="4" width="${thick}" height="32" rx=".6" fill="#8FB4C6"/>`);
+  });
+  for (let i = 0; i < xs.length - 1; i++) lines.push(`<rect x="${xs[i] + 1.5}" y="31" width="${xs[i + 1] - xs[i] - 3}" height="5" fill="var(--ink)" opacity=".75"/>`);
+  $('#xsec').innerHTML = lines.join('');
+  $('#xsecTitle').textContent = G.title; $('#xsecSub').textContent = G.desc;
+}
+
+function drawWindow() {
+  const r = calc(), T = r.T, C = r.C, H = HANDLES.find(h => h.id === st.handle);
+  const svg = $('#winSvg');
+  const boxMM = st.roller ? 190 : 0;
+  const aw = 440, ah = 400;
+  const s = Math.min(aw / st.w, ah / (st.h + boxMM));
+  const ww = st.w * s, hh = st.h * s, bh = boxMM * s;
+  const x = 50 + (aw - ww) / 2, y = 34 + (ah - (hh + bh)) / 2 + bh;
+  const f = Math.max(7, 70 * s), fs = Math.max(6, 75 * s);
+  const fill = C.grain ? `url(#grain-${C.id})` : C.c;
+  const o = [];
+  o.push(`<defs>
+    <linearGradient id="gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#CFE0E9"/><stop offset=".38" stop-color="#E7F0F4"/><stop offset=".385" stop-color="#C3D6E0"/><stop offset=".62" stop-color="#DCE8EE"/><stop offset="1" stop-color="#BFD2DC"/></linearGradient>
+    <pattern id="grain-hrast" width="80" height="7" patternUnits="userSpaceOnUse"><rect width="80" height="7" fill="#B47A43"/><path d="M0 2 Q20 0 40 2.5 T80 2M0 5 Q25 6.5 50 4.8 T80 5.5" stroke="#8A5A2E" stroke-width=".7" fill="none" opacity=".7"/></pattern>
+    <pattern id="grain-orah" width="80" height="7" patternUnits="userSpaceOnUse"><rect width="80" height="7" fill="#6B4A33"/><path d="M0 2 Q20 0 40 2.5 T80 2M0 5 Q25 6.5 50 4.8 T80 5.5" stroke="#3E2A1C" stroke-width=".7" fill="none" opacity=".8"/></pattern>
+    <pattern id="meshPat" width="3" height="3" patternUnits="userSpaceOnUse"><path d="M0 0h3M0 0v3" stroke="#2b2b2b" stroke-width=".35" opacity=".45"/></pattern>
+  </defs>`);
+  // floor shadow
+  o.push(`<ellipse cx="${x + ww / 2}" cy="${y + hh + 6}" rx="${ww * .48}" ry="5" fill="var(--ink)" opacity=".07"/>`);
+  if (st.roller) {
+    o.push(`<rect x="${x - 2}" y="${y - bh}" width="${ww + 4}" height="${bh}" rx="3" fill="${fill}" stroke="${C.e}" stroke-width="1"/>`);
+    o.push(`<path d="M${x + 6} ${y - bh * .35}h${ww - 12}" stroke="${C.e}" stroke-width="1" opacity=".5"/>`);
+  }
+  o.push(`<rect x="${x}" y="${y}" width="${ww}" height="${hh}" rx="2" fill="${fill}" stroke="${C.e}" stroke-width="1.2"/>`);
+  const ix = x + f, iy = y + f, iw = ww - 2 * f, ih = hh - 2 * f;
+  const mull = T.panels > 1 ? Math.max(5, (st.type === 'kl' ? 50 : 60) * s) : 0;
+  const pw = (iw - (T.panels - 1) * mull) / T.panels;
+  const dash = `stroke="var(--ink)" stroke-width="1" stroke-dasharray="5 4" fill="none" opacity=".55"`;
+  const handle = (hx, hy, vertical = true) => {
+    const L = Math.max(22, Math.min(40, 130 * s));
+    o.push(`<rect x="${hx - 3.5}" y="${hy - 8}" width="7" height="16" rx="3" fill="${H.c}" stroke="rgba(0,0,0,.35)" stroke-width=".6"/>`);
+    o.push(`<rect x="${hx - 2.2}" y="${hy}" width="4.4" height="${L}" rx="2.2" fill="${H.c}" stroke="rgba(0,0,0,.35)" stroke-width=".6"/>`);
+  };
+  for (let i = 0; i < T.panels; i++) {
+    const px = ix + i * (pw + mull);
+    if (st.type === 'fx') {
+      const b = Math.max(3, 18 * s);
+      o.push(`<rect x="${px}" y="${iy}" width="${pw}" height="${ih}" fill="url(#gl)"/>`);
+      o.push(`<rect x="${px + b}" y="${iy + b}" width="${pw - 2 * b}" height="${ih - 2 * b}" fill="none" stroke="${C.e}" stroke-width=".8" opacity=".6"/>`);
+      continue;
+    }
+    // sash
+    o.push(`<rect x="${px}" y="${iy}" width="${pw}" height="${ih}" fill="${fill}" stroke="${C.e}" stroke-width="1"/>`);
+    const gx = px + fs, gy = iy + fs, gw = pw - 2 * fs, gh = ih - 2 * fs;
+    o.push(`<rect x="${gx}" y="${gy}" width="${gw}" height="${gh}" fill="url(#gl)" stroke="${C.e}" stroke-width=".8"/>`);
+    const opening = !(st.type === 'kl' && i === 0);
+    if (st.mesh && opening) o.push(`<rect x="${gx}" y="${gy}" width="${gw}" height="${gh}" fill="url(#meshPat)"/>`);
+    if (st.type === 'kl') {
+      if (i === 0) o.push(`<text x="${gx + gw / 2}" y="${gy + gh / 2 + 5}" text-anchor="middle" font-family="Geist Mono, monospace" font-size="13" fill="var(--ink)" opacity=".55">F</text>`);
+      else {
+        const ay = gy + gh / 2, ax = gx + gw * .72, bx = gx + gw * .28;
+        o.push(`<path d="M${ax} ${ay}H${bx}m10 -8l-10 8 10 8" stroke="var(--ink)" stroke-width="1.4" fill="none" opacity=".7"/>`);
+        handle(px + fs / 2, iy + ih * .5 - 10);
+      }
+      continue;
+    }
+    // opening symbols: apex at hinge side
+    const hingeLeft = st.type === 'dk' ? i === 0 : true;
+    const turnOnly = st.type === 'dk' && i === 0;
+    if (hingeLeft) o.push(`<path d="M${gx + gw} ${gy}L${gx} ${gy + gh / 2}L${gx + gw} ${gy + gh}" ${dash}/>`);
+    else o.push(`<path d="M${gx} ${gy}L${gx + gw} ${gy + gh / 2}L${gx} ${gy + gh}" ${dash}/>`);
+    if (!turnOnly) o.push(`<path d="M${gx} ${gy}L${gx + gw / 2} ${gy + gh}L${gx + gw} ${gy}" ${dash}/>`);
+    if (!turnOnly) {
+      const hx = hingeLeft ? px + pw - fs / 2 : px + fs / 2;
+      const hy = st.type === 'bv' ? y + hh - Math.min(1050 * s, hh * .55) : iy + ih / 2 - 12;
+      handle(hx, hy);
+    }
+  }
+  if (st.roller) {
+    // partly lowered slats
+    const sl = Math.min(ih * .22, 70);
+    for (let k = 0; k < sl; k += 5) o.push(`<rect x="${x + f * .4}" y="${y + k}" width="${ww - f * .8}" height="4.2" fill="${fill}" stroke="${C.e}" stroke-width=".5"/>`);
+  }
+  // dimension lines
+  const dy = y + hh + 24, dx = x + ww + 24;
+  o.push(`<g stroke="var(--muted)" stroke-width="1" fill="none"><path d="M${x} ${dy}H${x + ww}M${x} ${dy - 6}v12M${x + ww} ${dy - 6}v12"/><path d="M${dx} ${y}V${y + hh}M${dx - 6} ${y}h12M${dx - 6} ${y + hh}h12"/></g>`);
+  o.push(`<g font-family="Geist Mono, monospace" font-size="12.5" fill="var(--ink)">
+    <rect x="${x + ww / 2 - 36}" y="${dy - 10}" width="72" height="20" rx="10" fill="var(--bg)"/>
+    <text x="${x + ww / 2}" y="${dy + 4.5}" text-anchor="middle">${st.w} mm</text>
+    <g transform="translate(${dx} ${y + hh / 2}) rotate(-90)"><rect x="-36" y="-10" width="72" height="20" rx="10" fill="var(--bg)"/><text y="4.5" text-anchor="middle">${st.h} mm</text></g>
+  </g>`);
+  svg.innerHTML = o.join('');
+}
+
+function render() {
+  const r = calc(), T = r.T;
+  wIn.min = T.w[0]; wIn.max = T.w[1]; hIn.min = T.h[0]; hIn.max = T.h[1];
+  st.w = Math.min(Math.max(st.w, T.w[0]), T.w[1]); st.h = Math.min(Math.max(st.h, T.h[0]), T.h[1]);
+  wIn.value = st.w; hIn.value = st.h; setP(wIn); setP(hIn);
+  const R = calc();
+  $('#wOut').textContent = st.w + ' mm'; $('#hOut').textContent = st.h + ' mm';
+  $('#typeHint').textContent = T.hint;
+  $('#colorHint').textContent = R.C.ral;
+  $('#glassHint').textContent = 'Ug ' + String(R.G.ug).replace('.', ',');
+  $('#sArea').textContent = nf2.format(R.A) + ' m²';
+  $('#sUw').textContent = nf2.format(R.uw) + ' W/m²K';
+  $('#sRw').textContent = 'Rw ' + R.rw + ' dB';
+  $('#sPrice').textContent = nf.format(R.lo) + ' – ' + nf.format(R.hi) + ' RSD';
+  $('#cfgCode').textContent = `MP-${T.code}-${String(st.w).padStart(4, '0')}×${String(st.h).padStart(4, '0')}-${R.C.code}-${R.G.code}${st.roller ? '-R' : ''}${st.mesh ? '-K' : ''}`;
+  drawWindow(); drawXsec(R.G);
+  // feed the savings calculator with the chosen glass
+  syncNewFromCfg(R);
+}
+
+$('#cfgForm').addEventListener('input', e => {
+  const t = e.target;
+  if (t.name === 'type') { st.type = t.value; st.w = TYPES[t.value].w[2]; st.h = TYPES[t.value].h[2]; }
+  else if (t.name === 'color') st.color = t.value;
+  else if (t.name === 'glass') st.glass = t.value;
+  else if (t.name === 'handle') st.handle = t.value;
+  else if (t.id === 'w') st.w = +t.value;
+  else if (t.id === 'h') st.h = +t.value;
+  else if (t.id === 'roller') st.roller = t.checked;
+  else if (t.id === 'mesh') st.mesh = t.checked;
+  else return;
+  render();
+});
+
+/* view toggle: drawing vs. in-room photo */
+const canvas = $('#cfgCanvas');
+let photoEl = null;
+function setView(room) {
+  $('#viewDraw').setAttribute('aria-pressed', String(!room));
+  $('#viewRoom').setAttribute('aria-pressed', String(room));
+  if (room && !photoEl) {
+    photoEl = document.createElement('img'); photoEl.className = 'photo'; photoEl.alt = 'Primer ugradnje u enterijeru';
+    photoEl.src = st.color === 'hrast' || st.color === 'orah' ? 'img/handle.jpg' : 'img/interior.jpg';
+    canvas.prepend(photoEl);
+  }
+  if (photoEl) { photoEl.hidden = !room; if (room) photoEl.src = st.color === 'hrast' || st.color === 'orah' ? 'img/handle.jpg' : 'img/interior.jpg'; }
+  $('#winSvg').style.visibility = room ? 'hidden' : 'visible';
+}
+$('#viewDraw').addEventListener('click', () => setView(false));
+$('#viewRoom').addEventListener('click', () => setView(true));
+
+/* save & lead */
+let saved = 0;
+try { saved = JSON.parse(localStorage.getItem('mp-configs') || '[]').length; } catch (e) { saved = 0; }
+$('#savedCount').textContent = saved;
+$('#saveBtn').addEventListener('click', () => {
+  const code = $('#cfgCode').textContent;
+  try { const a = JSON.parse(localStorage.getItem('mp-configs') || '[]'); if (!a.includes(code)) a.push(code); localStorage.setItem('mp-configs', JSON.stringify(a)); saved = a.length; }
+  catch (e) { saved += 1; }
+  $('#savedCount').textContent = saved;
+  $('#saveBtn').textContent = 'Sačuvano ✓';
+  const chip = $('#savedChip'); chip.classList.add('bump'); setTimeout(() => chip.classList.remove('bump'), 900);
+  setTimeout(() => $('#saveBtn').textContent = 'Sačuvaj', 1800);
+});
+$('#askBtn').addEventListener('click', () => { $('#lead').hidden = false; $('#sumActions').hidden = true; $('#leadName').focus(); });
+$('#sendBtn').addEventListener('click', () => {
+  const n = $('#leadName').value.trim(), p = $('#leadPhone').value.trim();
+  if (!n || p.replace(/\D/g, '').length < 6) { $('#leadErr').textContent = 'Upišite ime i broj telefona (najmanje 6 cifara) da bismo mogli da zakažemo merenje.'; return; }
+  $('#leadErr').textContent = '';
+  $('#lead').hidden = true; $('#leadDone').hidden = false;
+  $('#doneTitle').textContent = `Konfiguracija ${$('#cfgCode').textContent} je spremna.`;
+});
+
+/* ───────── SAVINGS ───────── */
+const OLD = [
+  { id: 'o1', name: 'Drveni jednostruki', u: 4.8, sub: 'U ≈ 4,8 W/m²K' },
+  { id: 'o2', name: 'Drveni krilo na krilo', u: 2.8, sub: 'U ≈ 2,8 W/m²K' },
+  { id: 'o3', name: 'Stari PVC', u: 1.9, sub: 'U ≈ 1,9 W/m²K' },
+];
+const NEW = [
+  { id: 'n2', name: 'Dvoslojno', u: 1.25, sub: 'Uw ≈ 1,25 W/m²K' },
+  { id: 'n3', name: 'Troslojno', u: 0.82, sub: 'Uw ≈ 0,82 W/m²K' },
+];
+const FUEL = [
+  { id: 'st', name: 'Struja', p: 12 }, { id: 'gs', name: 'Gas', p: 7 }, { id: 'dg', name: 'Daljinsko', p: 9 }, { id: 'dr', name: 'Drva / pelet', p: 6 },
+];
+const sv = { area: 14, old: 'o2', neu: 'n3', fuel: 'st' };
+const seg = (arr, name, cur, subKey) => arr.map(o => `<div class="sw"><input type="radio" name="${name}" id="${name}-${o.id}" value="${o.id}" ${o.id === cur ? 'checked' : ''}><label for="${name}-${o.id}"><b>${o.name}</b><small>${subKey ? o[subKey] : '≈ ' + o.p + ' RSD/kWh'}</small></label></div>`).join('');
+$('#oldWin').innerHTML = seg(OLD, 'old', sv.old, 'sub');
+$('#newWin').innerHTML = seg(NEW, 'neu', sv.neu, 'sub');
+$('#fuel').innerHTML = seg(FUEL, 'fuel', sv.fuel);
+const areaIn = $('#area');
+
+const animNum = (el, to, fmt) => {
+  const from = +el.dataset.v || 0; el.dataset.v = to;
+  if (reduce || !window.gsap) { el.textContent = fmt(to); return; }
+  const o = { v: from }; gsap.to(o, { v: to, duration: .7, ease: 'power3.out', onUpdate: () => el.textContent = fmt(o.v) });
+};
+function renderSav() {
+  const U0 = OLD.find(o => o.id === sv.old).u, U1 = NEW.find(o => o.id === sv.neu).u, P = FUEL.find(f => f.id === sv.fuel).p;
+  const k = 2600 * 24 / 1000;
+  const lossOld = U0 * sv.area * k, lossNew = U1 * sv.area * k, kwh = lossOld - lossNew, rsd = kwh * P;
+  $('#areaOut').textContent = sv.area + ' m²'; setP(areaIn);
+  $('#fuelHint').textContent = '≈ ' + P + ' RSD/kWh';
+  animNum($('#saveRsd'), Math.round(rsd / 100) * 100, v => nf.format(Math.round(v / 100) * 100));
+  $('#saveKwh').textContent = nf.format(Math.round(kwh / 10) * 10) + ' kWh';
+  $('#save10').textContent = nf.format(Math.round(rsd * 10 / 1000) * 1000);
+  $('#savePct').textContent = Math.round(kwh / lossOld * 100) + '%';
+  $('#lossOld').textContent = nf.format(Math.round(lossOld / 10) * 10) + ' kWh';
+  $('#lossNew').textContent = nf.format(Math.round(lossNew / 10) * 10) + ' kWh';
+  $('#barOld').style.width = '100%';
+  $('#barNew').style.width = (lossNew / lossOld * 100).toFixed(1) + '%';
+}
+$('#savForm').addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'area') sv.area = +t.value; else if (t.name === 'old') sv.old = t.value; else if (t.name === 'neu') sv.neu = t.value; else if (t.name === 'fuel') sv.fuel = t.value; else return;
+  renderSav();
+});
+function syncNewFromCfg(R) {
+  const want = R.G.panes === 2 ? 'n2' : 'n3';
+  if (sv.neu !== want) { sv.neu = want; const el = $('#neu-' + want); if (el) el.checked = true; if ($('#saveRsd')) renderSav(); }
+}
+
+/* ───────── Profile anatomy ───────── */
+const hots = $$('#anatFig .hot'), items = $$('#anatList .anat-item');
+const pick = i => {
+  hots.forEach(h => h.setAttribute('aria-pressed', String(+h.dataset.i === i)));
+  items.forEach(it => it.setAttribute('aria-expanded', String(+it.dataset.i === i)));
+};
+hots.forEach(h => h.addEventListener('click', () => pick(+h.dataset.i)));
+items.forEach(it => it.addEventListener('click', () => pick(+it.dataset.i)));
+
+/* ───────── Bento: noise ───────── */
+const wave = $('#wave');
+wave.innerHTML = Array.from({ length: 56 }, (_, i) => {
+  const h = 34 + Math.abs(Math.sin(i * .7) * 44 + Math.sin(i * 1.9) * 22);
+  return `<i style="--h:${h.toFixed(0)}%;--d:${(-(i % 9) * .13).toFixed(2)}s"></i>`;
+}).join('');
+const setNoise = newWin => {
+  $('#nOld').setAttribute('aria-pressed', String(!newWin)); $('#nNew').setAttribute('aria-pressed', String(newWin));
+  wave.style.setProperty('--amp', newWin ? .42 : 1);
+  animNum($('#dbVal'), newWin ? 33 : 52, v => Math.round(v));
+};
+$('#nOld').addEventListener('click', () => setNoise(false));
+$('#nNew').addEventListener('click', () => setNoise(true));
+$('#dbVal').dataset.v = 33; wave.style.setProperty('--amp', .42);
+
+/* ───────── Bento: design mini window ───────── */
+const mini = $('#miniWin');
+const drawMini = c => {
+  const fill = c.grain ? `url(#mg-${c.id})` : c.c;
+  mini.innerHTML = `<defs><linearGradient id="mgl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#CFE0E9"/><stop offset=".45" stop-color="#E7F0F4"/><stop offset=".46" stop-color="#C3D6E0"/><stop offset="1" stop-color="#BFD2DC"/></linearGradient>
+  <pattern id="mg-${c.id}" width="40" height="4" patternUnits="userSpaceOnUse"><rect width="40" height="4" fill="${c.c}"/><path d="M0 1.5Q10 0 20 1.6T40 1.4" stroke="${c.e}" stroke-width=".5" fill="none"/></pattern></defs>
+  <rect x="4" y="4" width="92" height="112" rx="2" fill="${fill}" stroke="${c.e}"/>
+  <rect x="11" y="11" width="37" height="98" fill="${fill}" stroke="${c.e}" stroke-width=".6"/><rect x="52" y="11" width="37" height="98" fill="${fill}" stroke="${c.e}" stroke-width=".6"/>
+  <rect x="16" y="16" width="27" height="88" fill="url(#mgl)"/><rect x="57" y="16" width="27" height="88" fill="url(#mgl)"/>
+  <rect x="47.5" y="52" width="3" height="14" rx="1.5" fill="${c.id === 'bela' ? '#E6E6E1' : '#1D1D1D'}"/>`;
+};
+$('#miniDots').innerHTML = COLORS.map((c, i) => `<button type="button" aria-label="${c.name}" aria-pressed="${i === 1}" data-c="${c.id}" style="background:${c.c}"></button>`).join('');
+$$('#miniDots button').forEach(b => b.addEventListener('click', () => {
+  $$('#miniDots button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  drawMini(COLORS.find(c => c.id === b.dataset.c));
+}));
+drawMini(COLORS[1]);
+
+/* ───────── Bento: smart home ───────── */
+$('#awayMode').addEventListener('change', e => {
+  const on = e.target.checked, roll = $('#stRoll'), win = $('#stWin');
+  roll.textContent = on ? 'Spuštena' : 'Podignuta'; roll.classList.toggle('on', on);
+  win.textContent = on ? 'Zatvoren' : 'Otklopljen'; win.classList.toggle('on', !on && false);
+});
+
+/* ───────── Newsletter ───────── */
+$('#whoA').addEventListener('click', () => { $('#whoA').setAttribute('aria-pressed', 'true'); $('#whoB').setAttribute('aria-pressed', 'false'); });
+$('#whoB').addEventListener('click', () => { $('#whoB').setAttribute('aria-pressed', 'true'); $('#whoA').setAttribute('aria-pressed', 'false'); });
+$('#newsForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const v = $('#newsEmail').value.trim();
+  $('#newsMsg').textContent = /.+@.+\..+/.test(v) ? 'Adresa je ispravna. Prototip: u produkciji se ovde potvrđuje prijava.' : 'Upišite ispravnu e-mail adresu, na primer ime@primer.rs.';
+});
+
+/* init */
+render(); renderSav();
+
+/* ───────── Scroll choreography (GSAP) ───────── */
+if (window.gsap && window.ScrollTrigger && !reduce) {
+  gsap.registerPlugin(ScrollTrigger);
+  // hero: frame grows to full bleed while the sash swings open
+  const hs = { open: 0 };
+  gsap.fromTo(heroWin, { '--clip': 7, '--rad': '28px' }, {
+    '--clip': 0, '--rad': '0px', ease: 'none',
+    scrollTrigger: { trigger: heroWin, start: 'top 85%', end: 'bottom 35%', scrub: .6 }
+  });
+  gsap.to(hs, { open: 62, ease: 'none', onUpdate: () => scrollOpen = hs.open,
+    scrollTrigger: { trigger: heroWin, start: 'top 40%', end: 'bottom 20%', scrub: .6 } });
+  // display headline: subtle rise on load (always visible)
+  gsap.from('.hero-top .display', { y: 30, duration: 1.2, ease: 'power3.out' });
+  gsap.from('.hero-aside > *', { y: 18, duration: 1, ease: 'power3.out', stagger: .08, delay: .15 });
+  // section heads drift up
+  $$('.sec-head').forEach(el => gsap.from(el, { y: 40, ease: 'power2.out', scrollTrigger: { trigger: el, start: 'top 92%', end: 'top 60%', scrub: .5 } }));
+  // bento tiles stagger rise
+  gsap.from('.bento .tile', { y: 50, ease: 'power2.out', stagger: .06, scrollTrigger: { trigger: '.bento', start: 'top 90%', end: 'top 45%', scrub: .5 } });
+  // process progress line
+  ScrollTrigger.create({ trigger: '#steps', start: 'top 70%', end: 'bottom 60%', scrub: true,
+    onUpdate: s => $('#stepProg').style.setProperty('--p', s.progress.toFixed(3)) });
+  // parallax on guide & savings imagery
+  $$('.guide img, .sav-out img, .proc-img img').forEach(img => gsap.fromTo(img, { yPercent: -6, scale: 1.12 }, { yPercent: 6, scale: 1.12, ease: 'none', scrollTrigger: { trigger: img.parentElement, start: 'top bottom', end: 'bottom top', scrub: true } }));
+  // giant wordmark slides
+  gsap.fromTo('.giant', { xPercent: 6 }, { xPercent: -4, ease: 'none', scrollTrigger: { trigger: '.giant', start: 'top bottom', end: 'bottom top', scrub: true } });
+} else {
+  $('#stepProg').style.setProperty('--p', 1);
+}
+})();
+</script>
+
+</body>
+</html>
